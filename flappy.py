@@ -63,6 +63,13 @@ def main():
         pygame.image.load('assets/sprites/9.png').convert_alpha()
     )
 
+    # sounds
+    DIE    = pygame.mixer.Sound('assets/audio/die.ogg')
+    HIT    = pygame.mixer.Sound('assets/audio/hit.ogg')
+    POINT  = pygame.mixer.Sound('assets/audio/point.ogg')
+    SWOOSH = pygame.mixer.Sound('assets/audio/swoosh.ogg')
+    WING   = pygame.mixer.Sound('assets/audio/wing.ogg')
+
     while True:
 
         for event in pygame.event.get():
