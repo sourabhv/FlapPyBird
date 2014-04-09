@@ -4,12 +4,24 @@ import sys
 import pygame
 from pygame.locals import *
 
-FPS = 30
-SCREENWIDTH = 144
-SCREENHEIGHT = 256
+FPS = 60
+SCREENWIDTH = 288
+SCREENHEIGHT = 512
 
 # list of players (tuple of 3 positions of flap)
 PLAYERS_LIST = (
+    # red bird
+    (
+        'assets/sprites/redbird-upflap.png',
+        'assets/sprites/redbird-midflap.png',
+        'assets/sprites/redbird-downflap.png',
+    ),
+    # blue bird
+    (
+        'assets/sprites/bluebird-upflap.png',
+        'assets/sprites/bluebird-midflap.png',
+        'assets/sprites/bluebird-downflap.png',
+    ),
     # yellow bird
     (
         'assets/sprites/yellowbird-upflap.png',
@@ -20,13 +32,14 @@ PLAYERS_LIST = (
 
 # list of backgrounds
 BACKGROUNDS_LIST = (
-    'assets/sprites/background_day.png',
-    'assets/sprites/background_night.png',
+    'assets/sprites/background-day.png',
+    'assets/sprites/background-night.png',
 )
 
 # list of pipes
 PIPES_LIST = (
     'assets/sprites/pipe-green.png',
+    'assets/sprites/pipe-red.png',
 )
 
 def main():
