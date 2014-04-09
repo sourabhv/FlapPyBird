@@ -37,14 +37,14 @@ def main():
     pygame.display.set_caption('Flappy Bird')
 
     # sprites
-    bgindex = random.randint(0, len(BACKGROUNDS_LIST) - 1)
-    BACKGROUND = pygame.image.load(BACKGROUNDS_LIST[bgindex]).convert()
+    bgIndex = random.randint(0, len(BACKGROUNDS_LIST) - 1)
+    BACKGROUND = pygame.image.load(BACKGROUNDS_LIST[bgIndex]).convert()
 
-    playerindex = random.randint(0, len(PLAYERS_LIST) - 1)
+    playerIndex = random.randint(0, len(PLAYERS_LIST) - 1)
     PLAYER = (
-        pygame.image.load(PLAYERS_LIST[playerindex][0]).convert_alpha(),
-        pygame.image.load(PLAYERS_LIST[playerindex][1]).convert_alpha(),
-        pygame.image.load(PLAYERS_LIST[playerindex][2]).convert_alpha(),
+        pygame.image.load(PLAYERS_LIST[playerIndex][0]).convert_alpha(),
+        pygame.image.load(PLAYERS_LIST[playerIndex][1]).convert_alpha(),
+        pygame.image.load(PLAYERS_LIST[playerIndex][2]).convert_alpha(),
     )
 
     pipeindex = random.randint(0, len(PIPES_LIST) - 1)
@@ -70,13 +70,32 @@ def main():
     SWOOSH = pygame.mixer.Sound('assets/audio/swoosh.ogg')
     WING   = pygame.mixer.Sound('assets/audio/wing.ogg')
 
+    playerIndex = 0
+    playerx = int(SCREENWIDTH * 0.2)
+    playery = int((SCREENHEIGHT - PLAYER[0].get_height()) / 2)
+
+    loopIter = 0
+    gameStart = False
+    pipes = []
+
     while True:
+        SCREEN.blit(BACKGROUND, (0,0))
+        SCREEN.blit(PLAYER[playerIndex], (playerx, playery))
+        if (loopIter + 1) % 5 == 0:
+            playerIndex = (playerIndex + 1) % 3
 
         for event in pygame.event.get():
-            if event.type == QUIT:
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
+            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+                if not gameStart:
+                    gameStart = True
+                else:
+                    pass
+        loopIter = (loopIter + 1) % 30
         pygame.display.update()
+        FPSCLOCK.tick(FPS)
 
 if __name__ == '__main__':
     main()
