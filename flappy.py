@@ -97,6 +97,17 @@ def main():
         playerCrashInfo = mainGame()
         showGameOverScreen(playerCrashInfo)
 
+def getBirdShmValue(birdShmValue, birdShmDir):
+    if abs(birdShmValue) == 8:
+        birdShmDir *= -1
+
+    if birdShmDir == 1:
+         birdShmValue += 1
+    else:
+        birdShmValue -= 1
+    return birdShmValue, birdShmDir
+
+
 def showWelcomeAnimation():
     playerIndex = 0
     loopIter = 0
@@ -107,19 +118,21 @@ def showWelcomeAnimation():
     basex = 0
     basey = int(SCREENHEIGHT * 0.78)
     baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
+    birdShmValue = 0
+    birdShmDir = 1
 
     while True:
         SCREEN.fill((255,255,255))
         SCREEN.blit(IMAGES['background'], (0,0))
-        SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery))
+        SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery + birdShmValue))
         SCREEN.blit(IMAGES['message'], (messagex, messagey))
         SCREEN.blit(IMAGES['base'], (basex, basey))
 
         if (loopIter + 1) % 5 == 0:
             playerIndex = (playerIndex + 1) % 3
         loopIter = (loopIter + 1) % 30
-
-        basex = -((-basex + 2) % baseShift)
+        basex = -((-basex + 4) % baseShift)
+        birdShmValue, birdShmDir = getBirdShmValue(birdShmValue, birdShmDir)
 
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
