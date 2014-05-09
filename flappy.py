@@ -8,6 +8,7 @@ from pygame.locals import *
 FPS = 30
 SCREENWIDTH = 288
 SCREENHEIGHT = 512
+GAPSIZE = SCREENHEIGHT * 0.33
 # image and sound object's dicts
 IMAGES, SOUNDS = {}, {}
 
@@ -93,8 +94,8 @@ def main():
         pipeindex = random.randint(0, len(PIPES_LIST) - 1)
         IMAGES['pipe'] = pygame.image.load(PIPES_LIST[pipeindex]).convert_alpha()
 
-        showWelcomeAnimation()
-        playerCrashInfo = mainGame()
+        playery = showWelcomeAnimation()
+        playerCrashInfo = mainGame(playery)
         showGameOverScreen(playerCrashInfo)
 
 def getBirdShmValue(birdShmValue, birdShmDir):
@@ -122,7 +123,6 @@ def showWelcomeAnimation():
     birdShmDir = 1
 
     while True:
-        SCREEN.fill((255,255,255))
         SCREEN.blit(IMAGES['background'], (0,0))
         SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery + birdShmValue))
         SCREEN.blit(IMAGES['message'], (messagex, messagey))
@@ -139,18 +139,60 @@ def showWelcomeAnimation():
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-                break
+                return playery + birdShmValue
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 
 
-def mainGame():
-    pass
+def mainGame(playery):
+    playerIndex = 0
+    loopIter = 0
+    playerx = int(SCREENWIDTH * 0.2)
+
+    basex = 0
+    basey = int(SCREENHEIGHT * 0.78)
+    baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
+
+    pipes = [{'x': 100, 'gapY': 100}]
+
+    while True:
+        SCREEN.blit(IMAGES['background'], (0,0))
+        SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery))
+        SCREEN.blit(IMAGES['base'], (basex, basey))
+
+        if (loopIter + 1) % 5 == 0:
+            playerIndex = (playerIndex + 1) % 3
+        loopIter = (loopIter + 1) % 30
+        basex = -((-basex + 4) % baseShift)
+
+        for event in pygame.event.get():
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+                return {
+                    'y': 40,
+                    'angle': '30',
+                    'groundCrash': False
+                }
+
+        pygame.display.update()
+        FPSCLOCK.tick(FPS)
+
+
+    return {
+        'y': 40,
+        'angle': '30',
+        'groundCrash': False
+    }
 
 
 def showGameOverScreen(playerCrashInfo):
-    pass
+    SOUNDS['hit'].play()
+    if not playerCrashInfo['groundCrash']:
+        pygame.time.delay(350)
+        SOUNDS['die'].play()
 
 
 if __name__ == '__main__':
