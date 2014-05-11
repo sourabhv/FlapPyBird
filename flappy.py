@@ -6,13 +6,12 @@ from pygame.locals import *
 
 
 FPS = 30
-SCREENWIDTH = 288
-SCREENHEIGHT = 512
-GAPSIZE = SCREENHEIGHT * 0.33
-# image and sound object's dicts
-IMAGES, SOUNDS = {}, {}
+SCREENWIDTH     = 288
+SCREENHEIGHT    = 512
+PIPEGAPSIZE     = 100 # gap between upper and lower part of pipe
+IMAGES, SOUNDS  = {}, {} # image and sound object's dicts
 
-# list of players (tuple of 3 positions of flap)
+# list of all possible players (tuple of 3 positions of flap)
 PLAYERS_LIST = (
     # red bird
     (
@@ -92,11 +91,171 @@ def main():
         )
 
         pipeindex = random.randint(0, len(PIPES_LIST) - 1)
-        IMAGES['pipe'] = pygame.image.load(PIPES_LIST[pipeindex]).convert_alpha()
+        IMAGES['pipe'] = (
+            pygame.transform.rotate(
+                pygame.image.load(PIPES_LIST[pipeindex]).convert_alpha(), 180),
+            pygame.image.load(PIPES_LIST[pipeindex]).convert_alpha(),
+        )
 
-        playery = showWelcomeAnimation()
-        playerCrashInfo = mainGame(playery)
-        showGameOverScreen(playerCrashInfo)
+        movementInfo = showWelcomeAnimation()
+        crashInfo = mainGame(movementInfo)
+        showGameOverScreen(crashInfo)
+
+
+def showWelcomeAnimation():
+    playerIndex = 0
+    loopIter = 0
+
+    playerx = int(SCREENWIDTH * 0.2)
+    playery = int((SCREENHEIGHT - IMAGES['player'][0].get_height()) / 2)
+
+    messagex = int((SCREENWIDTH - IMAGES['message'].get_width()) / 2)
+    messagey = int(SCREENHEIGHT * 0.12)
+
+    basex = 0
+    basey = int(SCREENHEIGHT * 0.78)
+    baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
+
+    birdShmValue = 0
+    birdShmDir = 1
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+                return {
+                    'playery': playery + birdShmValue,
+                    'basex': basex,
+                }
+
+        # adjust playery, playerIndex, basex
+        if (loopIter + 1) % 5 == 0:
+            playerIndex = (playerIndex + 1) % 3
+        loopIter = (loopIter + 1) % 30
+        basex = -((-basex + 4) % baseShift)
+        birdShmValue, birdShmDir = getBirdShmValue(birdShmValue, birdShmDir)
+
+        # draw sprites
+        SCREEN.blit(IMAGES['background'], (0,0))
+        SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery + birdShmValue))
+        SCREEN.blit(IMAGES['message'], (messagex, messagey))
+        SCREEN.blit(IMAGES['base'], (basex, basey))
+
+        pygame.display.update()
+        FPSCLOCK.tick(FPS)
+
+
+def mainGame(movementInfo):
+    score = 0
+
+    playerIndex = 0
+    loopIter = 0
+    playerx = int(SCREENWIDTH * 0.2)
+    playery = movementInfo['playery']
+
+    basex = movementInfo['basex']
+    basey = int(SCREENHEIGHT * 0.78)
+    baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
+
+    upperPipes = [
+        {'x': SCREENWIDTH + 100, 'y': SCREENHEIGHT / 2 - 400},
+        {'x': SCREENWIDTH + 250, 'y': SCREENHEIGHT / 2 - 400},
+        {'x': SCREENWIDTH + 400, 'y': SCREENHEIGHT / 2 - 400},
+    ]
+
+    lowerPipes = [
+        {'x': SCREENWIDTH + 100, 'y': SCREENHEIGHT / 2},
+        {'x': SCREENWIDTH + 250, 'y': SCREENHEIGHT / 2},
+        {'x': SCREENWIDTH + 400, 'y': SCREENHEIGHT / 2},
+    ]
+
+    pipeVelX = -4
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+                return {
+                    'y': playery,
+                    'groundCrash': False,
+                    'basex': basex,
+                    'upperPipes': upperPipes,
+                    'lowerPipes': lowerPipes,
+                }
+
+        # playerIndex basex change
+        if (loopIter + 1) % 5 == 0:
+            playerIndex = (playerIndex + 1) % 3
+        loopIter = (loopIter + 1) % 30
+        basex = -((-basex + 100) % baseShift)
+
+        # move pipes to left
+        for pipe in upperPipes:
+            pipe['x'] += pipeVelX
+        for pipe in lowerPipes:
+            pipe['x'] += pipeVelX
+
+        # draw sprites
+        SCREEN.blit(IMAGES['background'], (0,0))
+
+        for pipe in upperPipes:
+            SCREEN.blit(IMAGES['pipe'][0], (pipe['x'], pipe['y']))
+        for pipe in lowerPipes:
+            SCREEN.blit(IMAGES['pipe'][1], (pipe['x'], pipe['y']))
+
+        SCREEN.blit(IMAGES['base'], (basex, basey))
+        SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery))
+
+        pygame.display.update()
+        FPSCLOCK.tick(FPS)
+
+
+def showGameOverScreen(crashInfo):
+    playerx = SCREENWIDTH * 0.2
+    playery = crashInfo['y']
+    playerHeight = IMAGES['player'][0].get_rect().height
+    vel_y = 1
+
+    basex = crashInfo['basex']
+    basey = int(SCREENHEIGHT * 0.78)
+
+    upperPipes, lowerPipes = crashInfo['upperPipes'], crashInfo['lowerPipes']
+
+    # play hit and die sounds
+    SOUNDS['hit'].play()
+    if not crashInfo['groundCrash']:
+        pygame.time.delay(350)
+        SOUNDS['die'].play()
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+                return
+
+        # player y shift
+        if playery + playerHeight < basey:
+            playery += vel_y
+
+        # draw sprites
+        SCREEN.blit(IMAGES['background'], (0,0))
+
+        for pipe in upperPipes:
+            SCREEN.blit(IMAGES['pipe'][0], (pipe['x'], pipe['y']))
+        for pipe in lowerPipes:
+            SCREEN.blit(IMAGES['pipe'][1], (pipe['x'], pipe['y']))
+
+        SCREEN.blit(IMAGES['base'], (basex, basey))
+        SCREEN.blit(IMAGES['player'][1], (playerx,playery))
+
+        pygame.display.update()
+
 
 def getBirdShmValue(birdShmValue, birdShmDir):
     if abs(birdShmValue) == 8:
@@ -107,93 +266,6 @@ def getBirdShmValue(birdShmValue, birdShmDir):
     else:
         birdShmValue -= 1
     return birdShmValue, birdShmDir
-
-
-def showWelcomeAnimation():
-    playerIndex = 0
-    loopIter = 0
-    playerx = int(SCREENWIDTH * 0.2)
-    playery = int((SCREENHEIGHT - IMAGES['player'][0].get_height()) / 2)
-    messagex = int((SCREENWIDTH - IMAGES['message'].get_width()) / 2)
-    messagey = int(SCREENHEIGHT * 0.12)
-    basex = 0
-    basey = int(SCREENHEIGHT * 0.78)
-    baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
-    birdShmValue = 0
-    birdShmDir = 1
-
-    while True:
-        SCREEN.blit(IMAGES['background'], (0,0))
-        SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery + birdShmValue))
-        SCREEN.blit(IMAGES['message'], (messagex, messagey))
-        SCREEN.blit(IMAGES['base'], (basex, basey))
-
-        if (loopIter + 1) % 5 == 0:
-            playerIndex = (playerIndex + 1) % 3
-        loopIter = (loopIter + 1) % 30
-        basex = -((-basex + 4) % baseShift)
-        birdShmValue, birdShmDir = getBirdShmValue(birdShmValue, birdShmDir)
-
-        for event in pygame.event.get():
-            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                pygame.quit()
-                sys.exit()
-            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-                return playery + birdShmValue
-
-        pygame.display.update()
-        FPSCLOCK.tick(FPS)
-
-
-def mainGame(playery):
-    playerIndex = 0
-    loopIter = 0
-    playerx = int(SCREENWIDTH * 0.2)
-
-    basex = 0
-    basey = int(SCREENHEIGHT * 0.78)
-    baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
-
-    pipes = [{'x': 100, 'gapY': 100}]
-
-    while True:
-        SCREEN.blit(IMAGES['background'], (0,0))
-        SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery))
-        SCREEN.blit(IMAGES['base'], (basex, basey))
-
-        if (loopIter + 1) % 5 == 0:
-            playerIndex = (playerIndex + 1) % 3
-        loopIter = (loopIter + 1) % 30
-        basex = -((-basex + 4) % baseShift)
-
-        for event in pygame.event.get():
-            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                pygame.quit()
-                sys.exit()
-            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-                return {
-                    'y': 40,
-                    'angle': '30',
-                    'groundCrash': False
-                }
-
-        pygame.display.update()
-        FPSCLOCK.tick(FPS)
-
-
-    return {
-        'y': 40,
-        'angle': '30',
-        'groundCrash': False
-    }
-
-
-def showGameOverScreen(playerCrashInfo):
-    SOUNDS['hit'].play()
-    if not playerCrashInfo['groundCrash']:
-        pygame.time.delay(350)
-        SOUNDS['die'].play()
-
 
 if __name__ == '__main__':
     main()
