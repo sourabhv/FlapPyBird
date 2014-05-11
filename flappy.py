@@ -159,16 +159,18 @@ def mainGame(movementInfo):
     basey = int(SCREENHEIGHT * 0.78)
     baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
 
+    # get 2 new pipes to add to upperPipes lowerPipes list
+    newPipe1 = getRandomPipe()
+    newPipe2 = getRandomPipe()
+
     upperPipes = [
-        {'x': SCREENWIDTH + 100, 'y': SCREENHEIGHT / 2 - 400},
-        {'x': SCREENWIDTH + 250, 'y': SCREENHEIGHT / 2 - 400},
-        {'x': SCREENWIDTH + 400, 'y': SCREENHEIGHT / 2 - 400},
+        {'x': SCREENWIDTH + 200, 'y': newPipe1[0]['y']},
+        {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[0]['y']},
     ]
 
     lowerPipes = [
-        {'x': SCREENWIDTH + 100, 'y': SCREENHEIGHT / 2},
-        {'x': SCREENWIDTH + 250, 'y': SCREENHEIGHT / 2},
-        {'x': SCREENWIDTH + 400, 'y': SCREENHEIGHT / 2},
+        {'x': SCREENWIDTH + 200, 'y': newPipe1[1]['y']},
+        {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[1]['y']},
     ]
 
     pipeVelX = -4
@@ -194,18 +196,25 @@ def mainGame(movementInfo):
         basex = -((-basex + 100) % baseShift)
 
         # move pipes to left
-        for pipe in upperPipes:
-            pipe['x'] += pipeVelX
-        for pipe in lowerPipes:
-            pipe['x'] += pipeVelX
+        for uPipe, lPipe in zip(upperPipes, lowerPipes):
+            uPipe['x'] += pipeVelX
+            lPipe['x'] += pipeVelX
+
+        if 0< upperPipes[0]['x'] < 5:
+            newPipe = getRandomPipe()
+            upperPipes.append(newPipe[0])
+            lowerPipes.append(newPipe[1])
+
+        if upperPipes[0]['x'] < -IMAGES['pipe'][0].get_width():
+            upperPipes.pop(0)
+            lowerPipes.pop(0)
 
         # draw sprites
         SCREEN.blit(IMAGES['background'], (0,0))
 
-        for pipe in upperPipes:
-            SCREEN.blit(IMAGES['pipe'][0], (pipe['x'], pipe['y']))
-        for pipe in lowerPipes:
-            SCREEN.blit(IMAGES['pipe'][1], (pipe['x'], pipe['y']))
+        for uPipe, lPipe in zip(upperPipes, lowerPipes):
+            SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'], uPipe['y']))
+            SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
 
         SCREEN.blit(IMAGES['base'], (basex, basey))
         SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery))
@@ -246,13 +255,13 @@ def showGameOverScreen(crashInfo):
         # draw sprites
         SCREEN.blit(IMAGES['background'], (0,0))
 
-        for pipe in upperPipes:
-            SCREEN.blit(IMAGES['pipe'][0], (pipe['x'], pipe['y']))
-        for pipe in lowerPipes:
-            SCREEN.blit(IMAGES['pipe'][1], (pipe['x'], pipe['y']))
+        for uPipe, lPipe in zip(upperPipes, lowerPipes):
+            SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'], uPipe['y']))
+            SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
 
         SCREEN.blit(IMAGES['base'], (basex, basey))
         SCREEN.blit(IMAGES['player'][1], (playerx,playery))
+
 
         pygame.display.update()
 
@@ -266,6 +275,21 @@ def getBirdShmValue(birdShmValue, birdShmDir):
     else:
         birdShmValue -= 1
     return birdShmValue, birdShmDir
+
+
+def getRandomPipe():
+    # height of screen - groundheight - where gap can be
+    validHeight = SCREENHEIGHT - IMAGES['base'].get_height()
+    gapY = random.randrange(0, int(validHeight * 0.8 - PIPEGAPSIZE))
+    gapY += int(validHeight * 0.1)
+    pipeHeight = IMAGES['pipe'][0].get_height()
+    pipeX = SCREENWIDTH + 10
+
+    return [
+        {'x': pipeX, 'y': gapY - pipeHeight},
+        {'x': pipeX, 'y': gapY + PIPEGAPSIZE},
+    ]
+
 
 if __name__ == '__main__':
     main()
