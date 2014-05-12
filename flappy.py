@@ -9,6 +9,7 @@ FPS = 30
 SCREENWIDTH     = 288
 SCREENHEIGHT    = 512
 PIPEGAPSIZE     = 100 # gap between upper and lower part of pipe
+BASEY = SCREENHEIGHT * 0.79
 IMAGES, SOUNDS  = {}, {} # image and sound object's dicts
 
 # list of all possible players (tuple of 3 positions of flap)
@@ -113,7 +114,7 @@ def showWelcomeAnimation():
     messagey = int(SCREENHEIGHT * 0.12)
 
     basex = 0
-    basey = int(SCREENHEIGHT * 0.78)
+    basey = BASEY
     baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
 
     birdShmValue = 0
@@ -156,7 +157,7 @@ def mainGame(movementInfo):
     playery = movementInfo['playery']
 
     basex = movementInfo['basex']
-    basey = int(SCREENHEIGHT * 0.78)
+    basey = BASEY
     baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
 
     # get 2 new pipes to add to upperPipes lowerPipes list
@@ -175,30 +176,53 @@ def mainGame(movementInfo):
 
     pipeVelX = -4
 
+    # player velocity, max velocity, downward accleration, accleration on flap
+    playerVelY    =  -9   # player's velocity along Y, default same as playerFlapped
+    playerMaxVelY =  10   # max vel along Y, max descend speed
+    playerMinVelY =  -8   # min vel along Y, max ascend speed
+    playerAccY    =   1   # players downward accleration
+    playerFlapAcc =  -9   # players speed on flapping
+    playerFlapped = False #
+
+
     while True:
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-                return {
-                    'y': playery,
-                    'groundCrash': False,
-                    'basex': basex,
-                    'upperPipes': upperPipes,
-                    'lowerPipes': lowerPipes,
-                }
+                # if not playerVelY < playerMinVelY:
+                    # playerVelY += playerFlapAcc
+                playerVelY = playerFlapAcc
+                playerFlapped = True
 
         # playerIndex basex change
-        if (loopIter + 1) % 5 == 0:
+        if (loopIter + 1) % 3 == 0:
             playerIndex = (playerIndex + 1) % 3
         loopIter = (loopIter + 1) % 30
         basex = -((-basex + 100) % baseShift)
 
+        # player's movement
+        if playerVelY < playerMaxVelY and not playerFlapped:
+            playerVelY += playerAccY
+        if playerFlapped:
+            playerFlapped = False
+        playery += playerVelY
+
         # move pipes to left
         for uPipe, lPipe in zip(upperPipes, lowerPipes):
+            # TODO
+            # if collision with upipe or lpipe:
+            # return {
+            #     'y': playery,
+            #     'groundCrash': False,
+            #     'basex': basex,
+            #     'upperPipes': upperPipes,
+            #     'lowerPipes': lowerPipes,
+            # }
             uPipe['x'] += pipeVelX
             lPipe['x'] += pipeVelX
+
 
         if 0< upperPipes[0]['x'] < 5:
             newPipe = getRandomPipe()
@@ -230,7 +254,7 @@ def showGameOverScreen(crashInfo):
     vel_y = 1
 
     basex = crashInfo['basex']
-    basey = int(SCREENHEIGHT * 0.78)
+    basey = BASEY
 
     upperPipes, lowerPipes = crashInfo['upperPipes'], crashInfo['lowerPipes']
 
@@ -262,7 +286,6 @@ def showGameOverScreen(crashInfo):
         SCREEN.blit(IMAGES['base'], (basex, basey))
         SCREEN.blit(IMAGES['player'][1], (playerx,playery))
 
-
         pygame.display.update()
 
 
@@ -279,9 +302,8 @@ def getBirdShmValue(birdShmValue, birdShmDir):
 
 def getRandomPipe():
     # height of screen - groundheight - where gap can be
-    validHeight = SCREENHEIGHT - IMAGES['base'].get_height()
-    gapY = random.randrange(0, int(validHeight * 0.8 - PIPEGAPSIZE))
-    gapY += int(validHeight * 0.1)
+    gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
+    gapY += int(BASEY * 0.2)
     pipeHeight = IMAGES['pipe'][0].get_height()
     pipeX = SCREENWIDTH + 10
 
