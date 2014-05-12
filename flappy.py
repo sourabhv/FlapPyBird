@@ -182,7 +182,7 @@ def mainGame(movementInfo):
     playerMinVelY =  -8   # min vel along Y, max ascend speed
     playerAccY    =   1   # players downward accleration
     playerFlapAcc =  -9   # players speed on flapping
-    playerFlapped = False #
+    playerFlapped = False # True when player flaps
 
 
     while True:
@@ -191,10 +191,22 @@ def mainGame(movementInfo):
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-                # if not playerVelY < playerMinVelY:
-                    # playerVelY += playerFlapAcc
                 playerVelY = playerFlapAcc
                 playerFlapped = True
+                SOUNDS['wing'].play()
+
+        ################################
+        ##### CHECK FOR CRASH HERE #####
+        ################################
+        # TODO
+        # if collision with upipe or lpipe:
+        # return {
+        #     'y': playery,
+        #     'groundCrash': False,
+        #     'basex': basex,
+        #     'upperPipes': upperPipes,
+        #     'lowerPipes': lowerPipes,
+        # }
 
         # playerIndex basex change
         if (loopIter + 1) % 3 == 0:
@@ -211,15 +223,6 @@ def mainGame(movementInfo):
 
         # move pipes to left
         for uPipe, lPipe in zip(upperPipes, lowerPipes):
-            # TODO
-            # if collision with upipe or lpipe:
-            # return {
-            #     'y': playery,
-            #     'groundCrash': False,
-            #     'basex': basex,
-            #     'upperPipes': upperPipes,
-            #     'lowerPipes': lowerPipes,
-            # }
             uPipe['x'] += pipeVelX
             lPipe['x'] += pipeVelX
 
@@ -311,6 +314,10 @@ def getRandomPipe():
         {'x': pipeX, 'y': gapY - pipeHeight},
         {'x': pipeX, 'y': gapY + PIPEGAPSIZE},
     ]
+
+
+def checkCrash(playerxy, upperPipes, lowerPipes):
+    pass
 
 
 if __name__ == '__main__':
