@@ -68,9 +68,9 @@ def main():
         pygame.image.load('assets/sprites/9.png').convert_alpha()
     )
 
-    IMAGES['gameover'] = pygame.image.load('assets/sprites/gameover.png')
-    IMAGES['message'] = pygame.image.load('assets/sprites/message.png')
-    IMAGES['base'] = pygame.image.load('assets/sprites/base.png')
+    IMAGES['gameover'] = pygame.image.load('assets/sprites/gameover.png').convert_alpha()
+    IMAGES['message'] = pygame.image.load('assets/sprites/message.png').convert_alpha()
+    IMAGES['base'] = pygame.image.load('assets/sprites/base.png').convert_alpha()
 
     # sounds
     SOUNDS['die']    = pygame.mixer.Sound('assets/audio/die.ogg')
