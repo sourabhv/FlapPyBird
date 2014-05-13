@@ -215,6 +215,7 @@ def mainGame(movementInfo):
             pipeMidPos = pipe['x'] + IMAGES['pipe'][0].get_width() / 2
             if pipeMidPos <= playerMidPos < pipeMidPos + 4:
                 score += 1
+                SOUNDS['point'].play()
 
 
         # playerIndex basex change
@@ -253,6 +254,8 @@ def mainGame(movementInfo):
             SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
 
         SCREEN.blit(IMAGES['base'], (basex, basey))
+        # print score so player overlaps the score
+        showScore(score)
         SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery))
 
         pygame.display.update()
@@ -323,6 +326,20 @@ def getRandomPipe():
         {'x': pipeX, 'y': gapY - pipeHeight},
         {'x': pipeX, 'y': gapY + PIPEGAPSIZE},
     ]
+
+
+def showScore(score):
+    scoreDigits = [int(x) for x in list(str(score))]
+    totalWidth = 0 # total width of all numbers to be printed
+
+    for digit in scoreDigits:
+        totalWidth += IMAGES['numbers'][digit].get_width()
+
+    Xoffset = (SCREENWIDTH - totalWidth) / 2
+
+    for digit in scoreDigits:
+        SCREEN.blit(IMAGES['numbers'][digit], (Xoffset, SCREENHEIGHT * 0.1))
+        Xoffset += IMAGES['numbers'][digit].get_width()
 
 
 def checkCrash(playerxy, upperPipes, lowerPipes):
