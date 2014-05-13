@@ -209,6 +209,14 @@ def mainGame(movementInfo):
         #     'lowerPipes': lowerPipes,
         # }
 
+        # check for score
+        playerMidPos = playerx + IMAGES['player'][0].get_width() / 2
+        for pipe in upperPipes:
+            pipeMidPos = pipe['x'] + IMAGES['pipe'][0].get_width() / 2
+            if pipeMidPos <= playerMidPos < pipeMidPos + 4:
+                score += 1
+
+
         # playerIndex basex change
         if (loopIter + 1) % 3 == 0:
             playerIndex = (playerIndex + 1) % 3
