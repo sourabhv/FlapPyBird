@@ -205,6 +205,7 @@ def mainGame(movementInfo):
                 'basex': basex,
                 'upperPipes': upperPipes,
                 'lowerPipes': lowerPipes,
+                'score': score,
             }
 
         # check for score
@@ -261,6 +262,7 @@ def mainGame(movementInfo):
 
 
 def showGameOverScreen(crashInfo):
+    score = crashInfo['score']
     playerx = SCREENWIDTH * 0.2
     playery = crashInfo['y']
     playerHeight = IMAGES['player'][0].get_rect().height
@@ -297,6 +299,7 @@ def showGameOverScreen(crashInfo):
             SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
 
         SCREEN.blit(IMAGES['base'], (basex, basey))
+        showScore(score)
         SCREEN.blit(IMAGES['player'][1], (playerx,playery))
 
         pygame.display.update()
