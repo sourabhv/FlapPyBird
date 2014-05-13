@@ -196,9 +196,7 @@ def mainGame(movementInfo):
                     playerFlapped = True
                     SOUNDS['wing'].play()
 
-        ################################
-        ##### CHECK FOR CRASH HERE #####
-        ################################
+        # check for crash here
         crashTest = checkCrash({'x': playerx, 'y': playery}, upperPipes, lowerPipes)
         if crashTest[0]:
             return {
@@ -347,6 +345,18 @@ def checkCrash(player, upperPipes, lowerPipes):
     player['h'] = IMAGES['player'][0].get_height()
     if player['y'] + player['h'] + 4 >= BASEY:
         return [True, True]
+    else:
+        playerRect = pygame.Rect(player['x'], player['y'],
+                      player['w'], player['h'])
+        pipeW = IMAGES['pipe'][0].get_width()
+        pipeH = IMAGES['pipe'][0].get_height()
+
+        for uPipe, lPipe in zip(upperPipes, lowerPipes):
+            uPipe = (uPipe['x'], uPipe['y'], pipeW, pipeH)
+            lPipe = (lPipe['x'], lPipe['y'], pipeW, pipeH)
+            if playerRect.colliderect(uPipe) or playerRect.colliderect(lPipe):
+                return [True, False]
+
     return [False, False]
 
 
