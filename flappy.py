@@ -126,6 +126,7 @@ def showWelcomeAnimation():
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+                SOUNDS['wing'].play()
                 return {
                     'playery': playery + birdShmValue,
                     'basex': basex,
