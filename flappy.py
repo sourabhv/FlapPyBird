@@ -199,15 +199,15 @@ def mainGame(movementInfo):
         ################################
         ##### CHECK FOR CRASH HERE #####
         ################################
-        # TODO
-        # if collision with upipe or lpipe:
-        # return {
-        #     'y': playery,
-        #     'groundCrash': False,
-        #     'basex': basex,
-        #     'upperPipes': upperPipes,
-        #     'lowerPipes': lowerPipes,
-        # }
+        crashTest = checkCrash({'x': playerx, 'y': playery}, upperPipes, lowerPipes)
+        if crashTest[0]:
+            return {
+                'y': playery,
+                'groundCrash': crashTest[1],
+                'basex': basex,
+                'upperPipes': upperPipes,
+                'lowerPipes': lowerPipes,
+            }
 
         # check for score
         playerMidPos = playerx + IMAGES['player'][0].get_width() / 2
@@ -342,8 +342,12 @@ def showScore(score):
         Xoffset += IMAGES['numbers'][digit].get_width()
 
 
-def checkCrash(playerxy, upperPipes, lowerPipes):
-    pass
+def checkCrash(player, upperPipes, lowerPipes):
+    player['w'] = IMAGES['player'][0].get_width()
+    player['h'] = IMAGES['player'][0].get_height()
+    if player['y'] + player['h'] + 4 >= BASEY:
+        return [True, True]
+    return [False, False]
 
 
 if __name__ == '__main__':
