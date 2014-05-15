@@ -315,7 +315,8 @@ def showGameOverScreen(crashInfo):
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-                return
+                if playery + playerHeight >= BASEY-1:
+                    return
 
         # player y shift
         if playery + playerHeight < BASEY:
