@@ -8,6 +8,7 @@ from pygame.locals import *
 FPS = 30
 SCREENWIDTH     = 288
 SCREENHEIGHT    = 512
+# amount by which base can maximum shift to left
 PIPEGAPSIZE     = 100 # gap between upper and lower part of pipe
 BASEY = SCREENHEIGHT * 0.79
 # image, sound and hitmask  dicts
@@ -23,6 +24,7 @@ PLAYERS_LIST = (
     ),
     # blue bird
     (
+        # amount by which base can maximum shift to left
         'assets/sprites/bluebird-upflap.png',
         'assets/sprites/bluebird-midflap.png',
         'assets/sprites/bluebird-downflap.png',
@@ -123,7 +125,9 @@ def main():
 
 
 def showWelcomeAnimation():
+    # index of player to blit on screen
     playerIndex = 0
+    # iterator used to change playerIndex after every 5th iteration
     loopIter = 0
 
     playerx = int(SCREENWIDTH * 0.2)
@@ -133,11 +137,10 @@ def showWelcomeAnimation():
     messagey = int(SCREENHEIGHT * 0.12)
 
     basex = 0
-    basey = BASEY
+    # amount by which base can maximum shift to left
     baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
 
-    birdShmValue = 0
-    birdShmDir = 1
+    playerShm = {'val': 0, 'dir': 1}
 
     while True:
         for event in pygame.event.get():
@@ -147,7 +150,7 @@ def showWelcomeAnimation():
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
                 SOUNDS['wing'].play()
                 return {
-                    'playery': playery + birdShmValue,
+                    'playery': playery + playerShm['val'],
                     'basex': basex,
                 }
 
@@ -156,13 +159,13 @@ def showWelcomeAnimation():
             playerIndex = (playerIndex + 1) % 3
         loopIter = (loopIter + 1) % 30
         basex = -((-basex + 4) % baseShift)
-        birdShmValue, birdShmDir = getBirdShmValue(birdShmValue, birdShmDir)
+        getPlayerShmValue(playerShm)
 
         # draw sprites
         SCREEN.blit(IMAGES['background'], (0,0))
-        SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery + birdShmValue))
+        SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery + playerShm['val']))
         SCREEN.blit(IMAGES['message'], (messagex, messagey))
-        SCREEN.blit(IMAGES['base'], (basex, basey))
+        SCREEN.blit(IMAGES['base'], (basex, BASEY))
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
@@ -177,7 +180,6 @@ def mainGame(movementInfo):
     playery = movementInfo['playery']
 
     basex = movementInfo['basex']
-    basey = BASEY
     baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
 
     # get 2 new pipes to add to upperPipes lowerPipes list
@@ -273,7 +275,7 @@ def mainGame(movementInfo):
             SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'], uPipe['y']))
             SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
 
-        SCREEN.blit(IMAGES['base'], (basex, basey))
+        SCREEN.blit(IMAGES['base'], (basex, BASEY))
         # print score so player overlaps the score
         showScore(score)
         SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery))
@@ -290,7 +292,6 @@ def showGameOverScreen(crashInfo):
     vel_y = 15
 
     basex = crashInfo['basex']
-    basey = BASEY
 
     upperPipes, lowerPipes = crashInfo['upperPipes'], crashInfo['lowerPipes']
 
@@ -308,8 +309,8 @@ def showGameOverScreen(crashInfo):
                 return
 
         # player y shift
-        if playery + playerHeight < basey:
-            playery += vel_y % (basey - playery - playerHeight)
+        if playery + playerHeight < BASEY:
+            playery += vel_y % (BASEY - playery - playerHeight)
 
         # draw sprites
         SCREEN.blit(IMAGES['background'], (0,0))
@@ -318,7 +319,7 @@ def showGameOverScreen(crashInfo):
             SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'], uPipe['y']))
             SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
 
-        SCREEN.blit(IMAGES['base'], (basex, basey))
+        SCREEN.blit(IMAGES['base'], (basex, BASEY))
         showScore(score)
         SCREEN.blit(IMAGES['player'][1], (playerx,playery))
 
@@ -326,15 +327,14 @@ def showGameOverScreen(crashInfo):
         pygame.display.update()
 
 
-def getBirdShmValue(birdShmValue, birdShmDir):
-    if abs(birdShmValue) == 8:
-        birdShmDir *= -1
+def getPlayerShmValue(playerShm):
+    if abs(playerShm['val']) == 8:
+        playerShm['dir'] *= -1
 
-    if birdShmDir == 1:
-         birdShmValue += 1
+    if playerShm['dir'] == 1:
+         playerShm['val'] += 1
     else:
-        birdShmValue -= 1
-    return birdShmValue, birdShmDir
+        playerShm['val'] -= 1
 
 
 def getRandomPipe():
