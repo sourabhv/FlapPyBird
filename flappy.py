@@ -125,6 +125,7 @@ def main():
 
 
 def showWelcomeAnimation():
+    """Shows welcome screen animation of flappy bird"""
     # index of player to blit on screen
     playerIndex = 0
     # iterator used to change playerIndex after every 5th iteration
@@ -140,7 +141,8 @@ def showWelcomeAnimation():
     # amount by which base can maximum shift to left
     baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
 
-    playerShm = {'val': 0, 'dir': 1}
+    # player shm for up-down motion on welcome screen
+    playerShmVals = {'val': 0, 'dir': 1}
 
     while True:
         for event in pygame.event.get():
@@ -148,9 +150,10 @@ def showWelcomeAnimation():
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+                # make first flap sound and return values for mainGame
                 SOUNDS['wing'].play()
                 return {
-                    'playery': playery + playerShm['val'],
+                    'playery': playery + playerShmVals['val'],
                     'basex': basex,
                 }
 
@@ -159,11 +162,12 @@ def showWelcomeAnimation():
             playerIndex = (playerIndex + 1) % 3
         loopIter = (loopIter + 1) % 30
         basex = -((-basex + 4) % baseShift)
-        getPlayerShmValue(playerShm)
+        playerShm(playerShmVals)
 
         # draw sprites
         SCREEN.blit(IMAGES['background'], (0,0))
-        SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery + playerShm['val']))
+        SCREEN.blit(IMAGES['player'][playerIndex],
+                    (playerx, playery + playerShmVals['val']))
         SCREEN.blit(IMAGES['message'], (messagex, messagey))
         SCREEN.blit(IMAGES['base'], (basex, BASEY))
 
@@ -186,11 +190,13 @@ def mainGame(movementInfo):
     newPipe1 = getRandomPipe()
     newPipe2 = getRandomPipe()
 
+    # list of upper pipes
     upperPipes = [
         {'x': SCREENWIDTH + 200, 'y': newPipe1[0]['y']},
         {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[0]['y']},
     ]
 
+    # list of lowerpipe
     lowerPipes = [
         {'x': SCREENWIDTH + 200, 'y': newPipe1[1]['y']},
         {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[1]['y']},
@@ -239,7 +245,6 @@ def mainGame(movementInfo):
                 score += 1
                 SOUNDS['point'].play()
 
-
         # playerIndex basex change
         if (loopIter + 1) % 3 == 0:
             playerIndex = (playerIndex + 1) % 3
@@ -258,12 +263,13 @@ def mainGame(movementInfo):
             uPipe['x'] += pipeVelX
             lPipe['x'] += pipeVelX
 
-
-        if 0< upperPipes[0]['x'] < 5:
+        # add new pipe when first pipe is about to touch left of screen
+        if 0 < upperPipes[0]['x'] < 5:
             newPipe = getRandomPipe()
             upperPipes.append(newPipe[0])
             lowerPipes.append(newPipe[1])
 
+        # remove first pipe if its out of the screen
         if upperPipes[0]['x'] < -IMAGES['pipe'][0].get_width():
             upperPipes.pop(0)
             lowerPipes.pop(0)
@@ -285,6 +291,7 @@ def mainGame(movementInfo):
 
 
 def showGameOverScreen(crashInfo):
+    """crashes the player down ans shows gameover image"""
     score = crashInfo['score']
     playerx = SCREENWIDTH * 0.2
     playery = crashInfo['y']
@@ -327,7 +334,8 @@ def showGameOverScreen(crashInfo):
         pygame.display.update()
 
 
-def getPlayerShmValue(playerShm):
+def playerShm(playerShm):
+    """oscillates the value of playerShm['val'] between 8 and -8"""
     if abs(playerShm['val']) == 8:
         playerShm['dir'] *= -1
 
@@ -338,19 +346,21 @@ def getPlayerShmValue(playerShm):
 
 
 def getRandomPipe():
-    # height of screen - groundheight - where gap can be
+    """returns a randomly generated pipe"""
+    # y of gap between upper and lower pipe
     gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
     gapY += int(BASEY * 0.2)
     pipeHeight = IMAGES['pipe'][0].get_height()
     pipeX = SCREENWIDTH + 10
 
     return [
-        {'x': pipeX, 'y': gapY - pipeHeight},
-        {'x': pipeX, 'y': gapY + PIPEGAPSIZE},
+        {'x': pipeX, 'y': gapY - pipeHeight},  # upper pipe
+        {'x': pipeX, 'y': gapY + PIPEGAPSIZE}, # lower pipe
     ]
 
 
 def showScore(score):
+    """displays score in center of screen"""
     scoreDigits = [int(x) for x in list(str(score))]
     totalWidth = 0 # total width of all numbers to be printed
 
@@ -365,12 +375,16 @@ def showScore(score):
 
 
 def checkCrash(player, upperPipes, lowerPipes):
+    """returns True if player collders with base or pipes."""
     pi = player['index']
     player['w'] = IMAGES['player'][0].get_width()
     player['h'] = IMAGES['player'][0].get_height()
+
+    # if player crashes into ground
     if player['y'] + player['h'] + 4 >= BASEY:
         return [True, True]
     else:
+
         playerRect = pygame.Rect(player['x'], player['y'],
                       player['w'], player['h'])
         pipeW = IMAGES['pipe'][0].get_width()
@@ -386,6 +400,7 @@ def checkCrash(player, upperPipes, lowerPipes):
             uHitmask = HITMASKS['pipe'][0]
             lHitmask = HITMASKS['pipe'][1]
 
+            # if bird collided with upipe or lpipe
             uCollide = pixelCollision(playerRect, uPipeRect, pHitMask, uHitmask)
             lCollide = pixelCollision(playerRect, lPipeRect, pHitMask, lHitmask)
 
