@@ -121,10 +121,15 @@ def main():
         crashInfo = mainGame(movementInfo)
         showGameOverScreen(crashInfo)
 
+def genrator():
+    l = [0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1]
+    while True:
+        if l <> []: yield l.pop()
+        else: l = [0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1]
 
 def showWelcomeAnimation():
     playerIndex = 0
-    loopIter = 0
+    pattern = genrator()
 
     playerx = int(SCREENWIDTH * 0.2)
     playery = int((SCREENHEIGHT - IMAGES['player'][0].get_height()) / 2)
@@ -152,9 +157,7 @@ def showWelcomeAnimation():
                 }
 
         # adjust playery, playerIndex, basex
-        if (loopIter + 1) % 5 == 0:
-            playerIndex = (playerIndex + 1) % 3
-        loopIter = (loopIter + 1) % 30
+        playerIndex = pattern.next()
         basex = -((-basex + 4) % baseShift)
         birdShmValue, birdShmDir = getBirdShmValue(birdShmValue, birdShmDir)
 
@@ -172,7 +175,7 @@ def mainGame(movementInfo):
     score = 0
 
     playerIndex = 0
-    loopIter = 0
+    pattern = genrator()
     playerx = int(SCREENWIDTH * 0.2)
     playery = movementInfo['playery']
 
@@ -239,9 +242,7 @@ def mainGame(movementInfo):
 
 
         # playerIndex basex change
-        if (loopIter + 1) % 3 == 0:
-            playerIndex = (playerIndex + 1) % 3
-        loopIter = (loopIter + 1) % 30
+        playerIndex = pattern.next()
         basex = -((-basex + 100) % baseShift)
 
         # player's movement
