@@ -267,7 +267,7 @@ def showGameOverScreen(crashInfo):
     playerx = SCREENWIDTH * 0.2
     playery = crashInfo['y']
     playerHeight = IMAGES['player'][0].get_rect().height
-    vel_y = 1
+    vel_y = 15
 
     basex = crashInfo['basex']
     basey = BASEY
@@ -290,7 +290,7 @@ def showGameOverScreen(crashInfo):
 
         # player y shift
         if playery + playerHeight < basey:
-            playery += vel_y
+            playery += vel_y % (basey - playery - playerHeight)
 
         # draw sprites
         SCREEN.blit(IMAGES['background'], (0,0))
@@ -303,6 +303,7 @@ def showGameOverScreen(crashInfo):
         showScore(score)
         SCREEN.blit(IMAGES['player'][1], (playerx,playery))
 
+        FPSCLOCK.tick(FPS)
         pygame.display.update()
 
 
