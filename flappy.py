@@ -10,7 +10,8 @@ SCREENWIDTH     = 288
 SCREENHEIGHT    = 512
 PIPEGAPSIZE     = 100 # gap between upper and lower part of pipe
 BASEY = SCREENHEIGHT * 0.79
-IMAGES, SOUNDS  = {}, {} # image and sound object's dicts
+# image, sound and hitmask  dicts
+IMAGES, SOUNDS, HITMASKS = {}, {}, {}
 
 # list of all possible players (tuple of 3 positions of flap)
 PLAYERS_LIST = (
@@ -54,7 +55,7 @@ def main():
     SCREEN = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
     pygame.display.set_caption('Flappy Bird')
 
-    # sprites
+    # numbers sprites for score display
     IMAGES['numbers'] = (
         pygame.image.load('assets/sprites/0.png').convert_alpha(),
         pygame.image.load('assets/sprites/1.png').convert_alpha(),
@@ -68,8 +69,11 @@ def main():
         pygame.image.load('assets/sprites/9.png').convert_alpha()
     )
 
+    # game over sprite
     IMAGES['gameover'] = pygame.image.load('assets/sprites/gameover.png').convert_alpha()
+    # message sprite for welcome screen
     IMAGES['message'] = pygame.image.load('assets/sprites/message.png').convert_alpha()
+    # base (ground) sprite
     IMAGES['base'] = pygame.image.load('assets/sprites/base.png').convert_alpha()
 
     # sounds
@@ -80,10 +84,11 @@ def main():
     SOUNDS['wing']   = pygame.mixer.Sound('assets/audio/wing.ogg')
 
     while True:
-        # sprites
+        # select random background sprites
         randBg = random.randint(0, len(BACKGROUNDS_LIST) - 1)
         IMAGES['background'] = pygame.image.load(BACKGROUNDS_LIST[randBg]).convert()
 
+        # select random player sprites
         randPlayer = random.randint(0, len(PLAYERS_LIST) - 1)
         IMAGES['player'] = (
             pygame.image.load(PLAYERS_LIST[randPlayer][0]).convert_alpha(),
@@ -91,11 +96,25 @@ def main():
             pygame.image.load(PLAYERS_LIST[randPlayer][2]).convert_alpha(),
         )
 
+        # select random pipe sprites
         pipeindex = random.randint(0, len(PIPES_LIST) - 1)
         IMAGES['pipe'] = (
             pygame.transform.rotate(
                 pygame.image.load(PIPES_LIST[pipeindex]).convert_alpha(), 180),
             pygame.image.load(PIPES_LIST[pipeindex]).convert_alpha(),
+        )
+
+        # hismask for pipes
+        HITMASKS['pipe'] = (
+            getHitmask(IMAGES['pipe'][0]),
+            getHitmask(IMAGES['pipe'][1]),
+        )
+
+        # hitmask for player
+        HITMASKS['player'] = (
+            getHitmask(IMAGES['player'][0]),
+            getHitmask(IMAGES['player'][1]),
+            getHitmask(IMAGES['player'][2]),
         )
 
         movementInfo = showWelcomeAnimation()
@@ -198,7 +217,8 @@ def mainGame(movementInfo):
                     SOUNDS['wing'].play()
 
         # check for crash here
-        crashTest = checkCrash({'x': playerx, 'y': playery}, upperPipes, lowerPipes)
+        crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex},
+                               upperPipes, lowerPipes)
         if crashTest[0]:
             return {
                 'y': playery,
@@ -363,6 +383,33 @@ def checkCrash(player, upperPipes, lowerPipes):
 
     return [False, False]
 
+
+    return [False, False]
+
+def pixelCollision(rect1, rect2, hitmask1, hitmask2):
+    """Checks if two objects collide and not just their rects"""
+    rect = rect1.clip(rect2)
+
+    if rect.width == 0 or rect.height == 0:
+        return False
+
+    x1, y1 = rect.x - rect1.x, rect.y - rect1.y
+    x2, y2 = rect.x - rect2.x, rect.y - rect2.y
+
+    for x in xrange(rect.width):
+        for y in xrange(rect.height):
+            if hitmask1[x1+x][y1+y] and hitmask2[x2+x][y2+y]:
+                return True
+    return False
+
+def getHitmask(image):
+    """returns a hitmask using an image's alpha."""
+    mask = []
+    for x in range(image.get_width()):
+        mask.append([])
+        for y in range(image.get_height()):
+            mask[x].append(bool(image.get_at((x,y))[3]))
+    return mask
 
 if __name__ == '__main__':
     main()
