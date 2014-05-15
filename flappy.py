@@ -235,6 +235,7 @@ def mainGame(movementInfo):
                 'upperPipes': upperPipes,
                 'lowerPipes': lowerPipes,
                 'score': score,
+                'playerVelY': playerVelY,
             }
 
         # check for score
@@ -296,7 +297,8 @@ def showGameOverScreen(crashInfo):
     playerx = SCREENWIDTH * 0.2
     playery = crashInfo['y']
     playerHeight = IMAGES['player'][0].get_rect().height
-    vel_y = 15
+    playerVelY = crashInfo['playerVelY']
+    playerAccY = 2
 
     basex = crashInfo['basex']
 
@@ -317,7 +319,14 @@ def showGameOverScreen(crashInfo):
 
         # player y shift
         if playery + playerHeight < BASEY:
-            playery += vel_y % (BASEY - playery - playerHeight)
+            if playerVelY < 0:
+                playery += playerVelY
+            else:
+                playery += playerVelY % (BASEY - playery - playerHeight)
+
+        # player velocity change
+        if playerVelY < 15:
+            playerVelY += playerAccY
 
         # draw sprites
         SCREEN.blit(IMAGES['background'], (0,0))
