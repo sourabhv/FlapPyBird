@@ -277,7 +277,6 @@ def showGameOverScreen(crashInfo):
     # play hit and die sounds
     SOUNDS['hit'].play()
     if not crashInfo['groundCrash']:
-        pygame.time.delay(350)
         SOUNDS['die'].play()
 
     while True:
