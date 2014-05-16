@@ -262,7 +262,8 @@ def mainGame(movementInfo):
             playerVelY += playerAccY
         if playerFlapped:
             playerFlapped = False
-        playery += playerVelY
+        playerHeight = IMAGES['player'][playerIndex].get_height()
+        playery += min(playerVelY, BASEY - playery - playerHeight)
 
         # move pipes to left
         for uPipe, lPipe in zip(upperPipes, lowerPipes):
@@ -301,7 +302,7 @@ def showGameOverScreen(crashInfo):
     score = crashInfo['score']
     playerx = SCREENWIDTH * 0.2
     playery = crashInfo['y']
-    playerHeight = IMAGES['player'][0].get_rect().height
+    playerHeight = IMAGES['player'][0].get_height()
     playerVelY = crashInfo['playerVelY']
     playerAccY = 2
 
@@ -320,15 +321,12 @@ def showGameOverScreen(crashInfo):
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-                if playery + playerHeight >= BASEY-1:
+                if playery + playerHeight >= BASEY - 1:
                     return
 
         # player y shift
-        if playery + playerHeight < BASEY:
-            if playerVelY < 0:
-                playery += playerVelY
-            else:
-                playery += playerVelY % (BASEY - playery - playerHeight)
+        if playery + playerHeight < BASEY - 1:
+            playery += min(playerVelY, BASEY - playery - playerHeight)
 
         # player velocity change
         if playerVelY < 15:
@@ -396,7 +394,7 @@ def checkCrash(player, upperPipes, lowerPipes):
     player['h'] = IMAGES['player'][0].get_height()
 
     # if player crashes into ground
-    if player['y'] + player['h'] + 4 >= BASEY:
+    if player['y'] + player['h'] >= BASEY - 1:
         return [True, True]
     else:
 
