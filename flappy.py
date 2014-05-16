@@ -102,15 +102,17 @@ def main():
         crashInfo = mainGame(movementInfo)
         showGameOverScreen(crashInfo)
 
-def genrator():
-    l = [0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1]
+def genrator(n):
+    l = ['0' * n, '1' * n, '2' * n, '1' * n]
     while True:
-        if l <> []: yield l.pop()
-        else: l = [0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1]
+        if l != []:
+            yield l.pop()
+        else:
+            l = ['0' * n, '1' * n, '2' * n, '1' * n]
 
 def showWelcomeAnimation():
-    playerIndex = 0
-    pattern = genrator()
+    pattern = genrator(5)
+    playerIndex = []
 
     playerx = int(SCREENWIDTH * 0.2)
     playery = int((SCREENHEIGHT - IMAGES['player'][0].get_height()) / 2)
@@ -138,13 +140,14 @@ def showWelcomeAnimation():
                 }
 
         # adjust playery, playerIndex, basex
-        playerIndex = pattern.next()
+        if playerIndex == []:
+            playerIndex = list(pattern.next())
         basex = -((-basex + 4) % baseShift)
         birdShmValue, birdShmDir = getBirdShmValue(birdShmValue, birdShmDir)
 
         # draw sprites
         SCREEN.blit(IMAGES['background'], (0,0))
-        SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery + birdShmValue))
+        SCREEN.blit(IMAGES['player'][int(playerIndex.pop())], (playerx, playery + birdShmValue))
         SCREEN.blit(IMAGES['message'], (messagex, messagey))
         SCREEN.blit(IMAGES['base'], (basex, basey))
 
@@ -155,8 +158,8 @@ def showWelcomeAnimation():
 def mainGame(movementInfo):
     score = 0
 
-    playerIndex = 0
-    pattern = genrator()
+    pattern = genrator(3)
+    playerIndex = []
     playerx = int(SCREENWIDTH * 0.2)
     playery = movementInfo['playery']
 
@@ -222,7 +225,8 @@ def mainGame(movementInfo):
 
 
         # playerIndex basex change
-        playerIndex = pattern.next()
+        if playerIndex == []:
+            playerIndex = list(pattern.next())
         basex = -((-basex + 100) % baseShift)
 
         # player's movement
@@ -257,7 +261,7 @@ def mainGame(movementInfo):
         SCREEN.blit(IMAGES['base'], (basex, basey))
         # print score so player overlaps the score
         showScore(score)
-        SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery))
+        SCREEN.blit(IMAGES['player'][int(playerIndex.pop())], (playerx, playery))
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
