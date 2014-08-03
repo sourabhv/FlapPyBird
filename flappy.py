@@ -1,3 +1,4 @@
+from itertools import cycle
 import random
 import sys
 
@@ -6,11 +7,11 @@ from pygame.locals import *
 
 
 FPS = 30
-SCREENWIDTH     = 288
-SCREENHEIGHT    = 512
+SCREENWIDTH  = 288
+SCREENHEIGHT = 512
 # amount by which base can maximum shift to left
-PIPEGAPSIZE     = 100 # gap between upper and lower part of pipe
-BASEY = SCREENHEIGHT * 0.79
+PIPEGAPSIZE  = 100 # gap between upper and lower part of pipe
+BASEY        = SCREENHEIGHT * 0.79
 # image, sound and hitmask  dicts
 IMAGES, SOUNDS, HITMASKS = {}, {}, {}
 
@@ -133,6 +134,7 @@ def showWelcomeAnimation():
     """Shows welcome screen animation of flappy bird"""
     # index of player to blit on screen
     playerIndex = 0
+    playerIndexGen = cycle([0, 1, 2, 1])
     # iterator used to change playerIndex after every 5th iteration
     loopIter = 0
 
@@ -160,11 +162,12 @@ def showWelcomeAnimation():
                 return {
                     'playery': playery + playerShmVals['val'],
                     'basex': basex,
+                    'playerIndexGen': playerIndexGen,
                 }
 
         # adjust playery, playerIndex, basex
         if (loopIter + 1) % 5 == 0:
-            playerIndex = (playerIndex + 1) % 3
+            playerIndex = playerIndexGen.next()
         loopIter = (loopIter + 1) % 30
         basex = -((-basex + 4) % baseShift)
         playerShm(playerShmVals)
@@ -181,12 +184,9 @@ def showWelcomeAnimation():
 
 
 def mainGame(movementInfo):
-    score = 0
-
-    playerIndex = 0
-    loopIter = 0
-    playerx = int(SCREENWIDTH * 0.2)
-    playery = movementInfo['playery']
+    score = playerIndex = loopIter = 0
+    playerIndexGen = movementInfo['playerIndexGen']
+    playerx, playery = int(SCREENWIDTH * 0.2), movementInfo['playery']
 
     basex = movementInfo['basex']
     baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
@@ -253,7 +253,7 @@ def mainGame(movementInfo):
 
         # playerIndex basex change
         if (loopIter + 1) % 3 == 0:
-            playerIndex = (playerIndex + 1) % 3
+            playerIndex = playerIndexGen.next()
         loopIter = (loopIter + 1) % 30
         basex = -((-basex + 100) % baseShift)
 
