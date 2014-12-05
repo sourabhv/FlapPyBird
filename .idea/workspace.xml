@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="e5c26978-7a31-479b-ba20-e3894d7a276f" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/encodings.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/flappy-bird.iml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/scopes/scope_settings.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/.idea/FlappyBirdClone-master.iml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/.idea/_name" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/.idea/encodings.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/.idea/misc.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/.idea/modules.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/.idea/scopes/scope_settings.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/.idea/vcs.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/.idea/workspace.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/LICENSE" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/README.md" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/_gitignore" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/audio/die.ogg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/audio/die.wav" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/audio/hit.ogg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/audio/hit.wav" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/audio/point.ogg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/audio/point.wav" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/audio/swoosh.ogg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/audio/swoosh.wav" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/audio/wing.ogg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/audio/wing.wav" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/0.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/1.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/2.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/3.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/4.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/5.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/6.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/7.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/8.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/9.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/background-day.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/background-night.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/base.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/bluebird-downflap.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/bluebird-midflap.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/bluebird-upflap.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/gameover.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/message.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/pipe-green.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/pipe-red.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/redbird-downflap.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/redbird-midflap.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/redbird-upflap.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/yellowbird-downflap.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/yellowbird-midflap.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/assets/sprites/yellowbird-upflap.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/flappy.ico" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/flappy.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/python.exe" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/screenshot1.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/FlappyBirdClone-master/setup.py" afterPath="" />
+    </list>
+    <ignored path="flappy-bird.iws" />
+    <ignored path=".idea/workspace.xml" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="DaemonCodeAnalyzer">
+    <disable_hints />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FavoritesManager">
+    <favorites_list name="flappy-bird" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file leaf-file-name="flappy.py" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/game/flappy.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.45382166" vertical-offset="0" max-vertical-offset="6855">
+              <caret line="19" column="14" selection-start-line="19" selection-start-column="14" selection-end-line="19" selection-end-column="14" />
+              <folding>
+                <element signature="e#0#27#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindManager">
+    <FindUsagesManager>
+      <setting name="OPEN_NEW_TAB" value="true" />
+    </FindUsagesManager>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="10" />
+    <option name="y" value="23" />
+    <option name="width" value="1260" />
+    <option name="height" value="725" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
+    <OptionsSetting value="true" id="Add" />
+    <OptionsSetting value="true" id="Remove" />
+    <OptionsSetting value="true" id="Checkout" />
+    <OptionsSetting value="true" id="Update" />
+    <OptionsSetting value="true" id="Status" />
+    <OptionsSetting value="true" id="Edit" />
+    <ConfirmationsSetting value="2" id="Add" />
+    <ConfirmationsSetting value="0" id="Remove" />
+  </component>
+  <component name="ProjectReloadState">
+    <option name="STATE" value="0" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="flappy-bird" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="flappy-bird" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="flappy-bird" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="flappy-bird" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="flappy-bird" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="game" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+  </component>
+  <component name="RunManager">
+    <list size="0" />
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="e5c26978-7a31-479b-ba20-e3894d7a276f" name="Default" comment="" />
+      <created>1417822950239</created>
+      <updated>1417822950239</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="10" y="23" width="1260" height="725" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+    </layout>
+  </component>
+  <component name="Vcs.Log.UiProperties">
+    <option name="RECENTLY_FILTERED_USER_GROUPS">
+      <collection />
+    </option>
+    <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+      <collection />
+    </option>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="myTodoPanelSettings">
+      <TodoPanelSettings />
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/game/flappy.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.45382166" vertical-offset="0" max-vertical-offset="6855">
+          <caret line="19" column="14" selection-start-line="19" selection-start-column="14" selection-end-line="19" selection-end-column="14" />
+          <folding>
+            <element signature="e#0#27#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
+
