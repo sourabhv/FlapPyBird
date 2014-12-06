@@ -10,7 +10,7 @@ class static:
     FLAG = True
     REWARD = 0
 
-FPS = 150
+FPS = 300
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
 # amount by which base can maximum shift to left
@@ -26,7 +26,7 @@ EPSILON = 0.9
 QValue = []
 lastState = ()
 lastAction = static.FLAG
-birdAgent = learning.QLearn(actions=ACTIONLIST, alpha=0.9, gamma=0.9, epsilon=0.1)
+birdAgent = learning.QLearn(actions=ACTIONLIST, alpha=0.1, gamma=0.9, epsilon=0.1)
 
 # list of all possible players (tuple of 3 positions of flap)
 PLAYERS_LIST = (
@@ -65,12 +65,13 @@ PIPES_LIST = (
 
 
 def main():
-    #static.FLAG = True
+    static.FLAG = True
     global SCREEN, FPSCLOCK
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     SCREEN = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
     pygame.display.set_caption('Flappy Bird')
+
 
     # numbers sprites for score display
     IMAGES['numbers'] = (
@@ -210,8 +211,6 @@ def showWelcomeAnimation():
 
 def mainGame(movementInfo):
     score = playerIndex = loopIter = 0
-    if score > 0:
-        print score
     playerIndexGen = movementInfo['playerIndexGen']
     playerx, playery = int(SCREENWIDTH * 0.2), movementInfo['playery']
 
@@ -258,7 +257,7 @@ def mainGame(movementInfo):
                     SOUNDS['wing'].play()
 
         if static.FLAG:
-            #static.FLAG = False
+            static.FLAG = False
             if playery > -2 * IMAGES['player'][0].get_height():
                 playerVelY = playerFlapAcc
                 playerFlapped = True
@@ -328,6 +327,8 @@ def mainGame(movementInfo):
         SCREEN.blit(IMAGES['base'], (basex, BASEY))
         # print score so player overlaps the score
         showScore(score)
+        if score > 0:
+            print score
         SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery))
 
         pygame.display.update()
@@ -363,6 +364,7 @@ def showGameOverScreen(crashInfo):
         if static.FLAG:
             #static.FLAG = False
             if playery + playerHeight >= BASEY - 1:
+                #static.FLAG = True
                 return
 
         # player y shift
@@ -459,7 +461,6 @@ def checkCrash(player, upperPipes, lowerPipes):
             lCollide = pixelCollision(playerRect, lPipeRect, pHitMask, lHitmask)
 
             if uCollide or lCollide:
-                #static.FLAG = True
                 return [True, False]
     return [False, False]
 
@@ -518,8 +519,6 @@ def update(player, upperPipes, lowerPipes):
                 #print Q
                 lastState = Q[len(Q)-2][0]
                 lastAction = Q[len(Q)-2][1]
-                if player['y'] > 400 or player['y'] < 150:
-                    static.REWARD -= 100
 
                 birdAgent.learn(lastState, lastAction, static.REWARD, state)
                 static.FLAG = birdAgent.chooseAction(state)
@@ -529,11 +528,11 @@ def update(player, upperPipes, lowerPipes):
                     static.FLAG = True
                     static.REWARD = 0
                 else:
-                    static.REWARD += 10
+                    static.REWARD += 1
                 #print static.REWARD
 
 def pixelCollision(rect1, rect2, hitmask1, hitmask2):
-    """Checks if two objects collide and not just their Rects"""
+    """Checks if two objects collide and not just their reacts"""
     rect = rect1.clip(rect2)
 
     if rect.width == 0 or rect.height == 0:
