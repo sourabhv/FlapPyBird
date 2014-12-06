@@ -1,6 +1,7 @@
 from itertools import cycle
 import random
 import sys
+import time
 
 import pygame
 from pygame.locals import *
@@ -200,9 +201,7 @@ def mainGame(movementInfo):
         {'x': SCREENWIDTH + 200, 'y': newPipe1[0]['y']},
         {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[0]['y']},
     ]
-    print "newPipe1", newPipe1
 
-    print "newPipe2", newPipe2
     #print upperPipes
     # list of lowerpipe
     lowerPipes = [
@@ -406,6 +405,8 @@ def checkCrash(player, upperPipes, lowerPipes):
         pipeW = IMAGES['pipe'][0].get_width()
         pipeH = IMAGES['pipe'][0].get_height()
 
+        distance = []
+
         for uPipe, lPipe in zip(upperPipes, lowerPipes):
             # upper and lower pipe rects
             uPipeRect = pygame.Rect(uPipe['x'], uPipe['y'], pipeW, pipeH)
@@ -413,11 +414,26 @@ def checkCrash(player, upperPipes, lowerPipes):
             lPipeRect = pygame.Rect(lPipe['x'], lPipe['y'], pipeW, pipeH)
             #print "lower Pipe Coordinates = ", lPipe['x'], ", ", lPipe['y']
 
-            #minLowerX = (lPipe['x'] - player['x'])
-            distance = []
-            distance.append(lPipe['x'] - player['x'] + player['w'] - pipeW, ", ", lPipe['y'] - player['y'] - player['h'])
-            for x,y in distance:
-                
+
+
+
+            for i in range (0, len(distance)):
+                if distance[i][0] < 0:
+                    distance.pop(i)
+            if distance != []:
+                print distance
+            distance.append([lPipe['x'] - player['x'] + player['w'] - pipeW, lPipe['y'] - player['y'] - player['h']])
+
+            #time.sleep(1)
+            #if (lPipe['x'] - lPipe['x'] - player['x'] + player['w'] - pipeW) < 0:
+            #    distance.pop(0)
+            #print distance
+            # if len(distance) == 3:
+            #     print distance[2]
+            # elif len(distance) == 2:
+            #     print distance[1]
+            # elif len(distance) == 1:
+            #     print distance[0]
 
             # player and upper/lower pipe hitmasks
             pHitMask = HITMASKS['player'][pi]
