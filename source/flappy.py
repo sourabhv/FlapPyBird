@@ -200,7 +200,10 @@ def mainGame(movementInfo):
         {'x': SCREENWIDTH + 200, 'y': newPipe1[0]['y']},
         {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[0]['y']},
     ]
+    print "newPipe1", newPipe1
 
+    print "newPipe2", newPipe2
+    #print upperPipes
     # list of lowerpipe
     lowerPipes = [
         {'x': SCREENWIDTH + 200, 'y': newPipe1[1]['y']},
@@ -364,7 +367,7 @@ def getRandomPipe():
     gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
     gapY += int(BASEY * 0.2)
     pipeHeight = IMAGES['pipe'][0].get_height()
-    pipeX = SCREENWIDTH + 10
+    pipeX = SCREENWIDTH + 10 # ? don't know why 10 is added
 
     return [
         {'x': pipeX, 'y': gapY - pipeHeight},  # upper pipe
@@ -388,7 +391,7 @@ def showScore(score):
 
 
 def checkCrash(player, upperPipes, lowerPipes):
-    """returns True if player collders with base or pipes."""
+    """returns True if player collides with base or pipes."""
     pi = player['index']
     player['w'] = IMAGES['player'][0].get_width()
     player['h'] = IMAGES['player'][0].get_height()
@@ -406,7 +409,15 @@ def checkCrash(player, upperPipes, lowerPipes):
         for uPipe, lPipe in zip(upperPipes, lowerPipes):
             # upper and lower pipe rects
             uPipeRect = pygame.Rect(uPipe['x'], uPipe['y'], pipeW, pipeH)
+            #print "upper Pipe Coordinates = ", uPipe['x'], ", ", uPipe['y']
             lPipeRect = pygame.Rect(lPipe['x'], lPipe['y'], pipeW, pipeH)
+            #print "lower Pipe Coordinates = ", lPipe['x'], ", ", lPipe['y']
+
+            #minLowerX = (lPipe['x'] - player['x'])
+            distance = []
+            distance.append(lPipe['x'] - player['x'] + player['w'] - pipeW, ", ", lPipe['y'] - player['y'] - player['h'])
+            for x,y in distance:
+                
 
             # player and upper/lower pipe hitmasks
             pHitMask = HITMASKS['player'][pi]
