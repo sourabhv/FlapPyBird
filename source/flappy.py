@@ -18,6 +18,15 @@ PIPEGAPSIZE = 100 # gap between upper and lower part of pipe
 BASEY = SCREENHEIGHT * 0.79
 # image, sound and hitmask  dicts
 IMAGES, SOUNDS, HITMASKS = {}, {}, {}
+Q = []
+ACTIONLIST = [True, False]
+DISCOUNT = 0.5
+ALPHA = 0.5
+EPSILON = 0.9
+QValue = []
+lastState = ()
+lastAction = static.FLAG
+birdAgent = learning.QLearn(actions=ACTIONLIST, alpha=0.9, gamma=0.9, epsilon=0.1)
 
 # list of all possible players (tuple of 3 positions of flap)
 PLAYERS_LIST = (
@@ -323,7 +332,7 @@ def mainGame(movementInfo):
 
 
 def showGameOverScreen(crashInfo):
-    """crashes the player down ans shows gameover image"""
+    """crashes the player down ans shows game over image"""
     score = crashInfo['score']
     playerx = SCREENWIDTH * 0.2
     playery = crashInfo['y']
@@ -452,6 +461,8 @@ def checkCrash(player, upperPipes, lowerPipes):
     return [False, False]
 
 def update(player, upperPipes, lowerPipes):
+
+
     pi = player['index']
     player['w'] = IMAGES['player'][0].get_width()
     player['h'] = IMAGES['player'][0].get_height()
@@ -459,6 +470,8 @@ def update(player, upperPipes, lowerPipes):
     # if player crashes into ground
     if player['y'] + player['h'] >= BASEY - 1:
         # update reward to -1000
+        #birdAgent.learn(lastState, lastAction, static.REWARD, state)
+        static.FLAG = True
         static.REWARD -= 1000
     else:
         playerRect = pygame.Rect(player['x'], player['y'],
@@ -467,8 +480,6 @@ def update(player, upperPipes, lowerPipes):
         pipeH = IMAGES['pipe'][0].get_height()
 
         distance = []
-        actions = [True, False]
-
 
         for uPipe, lPipe in zip(upperPipes, lowerPipes):
             # upper and lower pipe Rects
@@ -498,15 +509,24 @@ def update(player, upperPipes, lowerPipes):
                 state = distance[0]
                 state = tuple(state)
                 print state, static.FLAG
-                birdAgent = learning.QLearn(actions=range(True, False),alpha=0.1, gamma=0.9, epsilon=0.1)
+                action = static.FLAG
+                Q.append([state, action])
+                print Q
+                lastState = Q[len(Q)-2][0]
+                lastAction = Q[len(Q)-2][1]
+
+                birdAgent.learn(lastState, lastAction, static.REWARD, state)
+                static.FLAG = birdAgent.chooseAction(state)
+
+                # give rewards
                 if uCollide or lCollide:
                     static.REWARD -= 1000
+                    static.FLAG = True
                 else:
                     static.REWARD += 1
-                print static.REWARD
-                #static.FLAG = True
 
-
+                #print static.REWARD
+                static.FLAG = False
 
 def pixelCollision(rect1, rect2, hitmask1, hitmask2):
     """Checks if two objects collide and not just their reacts"""
