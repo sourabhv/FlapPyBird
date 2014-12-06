@@ -10,7 +10,7 @@ class static:
     FLAG = True
     REWARD = 0
 
-FPS = 30
+FPS = 150
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
 # amount by which base can maximum shift to left
@@ -65,6 +65,7 @@ PIPES_LIST = (
 
 
 def main():
+    #static.FLAG = True
     global SCREEN, FPSCLOCK
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
@@ -181,7 +182,7 @@ def showWelcomeAnimation():
         if static.FLAG:
             # make first flap sound and return values for mainGame
             SOUNDS['wing'].play()
-            static.FLAG = False
+            static.FLAG = True
             return {
                 'playery': playery + playerShmVals['val'],
                 'basex': basex,
@@ -209,6 +210,8 @@ def showWelcomeAnimation():
 
 def mainGame(movementInfo):
     score = playerIndex = loopIter = 0
+    if score > 0:
+        print score
     playerIndexGen = movementInfo['playerIndexGen']
     playerx, playery = int(SCREENWIDTH * 0.2), movementInfo['playery']
 
@@ -255,7 +258,7 @@ def mainGame(movementInfo):
                     SOUNDS['wing'].play()
 
         if static.FLAG:
-            static.FLAG = False
+            #static.FLAG = False
             if playery > -2 * IMAGES['player'][0].get_height():
                 playerVelY = playerFlapAcc
                 playerFlapped = True
@@ -358,10 +361,9 @@ def showGameOverScreen(crashInfo):
                 if playery + playerHeight >= BASEY - 1:
                     return
         if static.FLAG:
-            static.FLAG = False
+            #static.FLAG = False
             if playery + playerHeight >= BASEY - 1:
                 return
-
 
         # player y shift
         if playery + playerHeight < BASEY - 1:
@@ -457,6 +459,7 @@ def checkCrash(player, upperPipes, lowerPipes):
             lCollide = pixelCollision(playerRect, lPipeRect, pHitMask, lHitmask)
 
             if uCollide or lCollide:
+                #static.FLAG = True
                 return [True, False]
     return [False, False]
 
@@ -471,8 +474,9 @@ def update(player, upperPipes, lowerPipes):
     if player['y'] + player['h'] >= BASEY - 1:
         # update reward to -1000
         #birdAgent.learn(lastState, lastAction, static.REWARD, state)
-        static.FLAG = True
         static.REWARD -= 1000
+        static.FLAG = True
+        static.REWARD = 0
     else:
         playerRect = pygame.Rect(player['x'], player['y'],
                       player['w'], player['h'])
@@ -508,28 +512,28 @@ def update(player, upperPipes, lowerPipes):
             if distance != []:
                 state = distance[0]
                 state = tuple(state)
-                print state, static.FLAG
+                #print state, static.FLAG
                 action = static.FLAG
                 Q.append([state, action])
-                print Q
+                #print Q
                 lastState = Q[len(Q)-2][0]
                 lastAction = Q[len(Q)-2][1]
+                if player['y'] > 400 or player['y'] < 150:
+                    static.REWARD -= 100
 
                 birdAgent.learn(lastState, lastAction, static.REWARD, state)
                 static.FLAG = birdAgent.chooseAction(state)
-
                 # give rewards
                 if uCollide or lCollide:
                     static.REWARD -= 1000
                     static.FLAG = True
+                    static.REWARD = 0
                 else:
-                    static.REWARD += 1
-
+                    static.REWARD += 10
                 #print static.REWARD
-                static.FLAG = False
 
 def pixelCollision(rect1, rect2, hitmask1, hitmask2):
-    """Checks if two objects collide and not just their reacts"""
+    """Checks if two objects collide and not just their Rects"""
     rect = rect1.clip(rect2)
 
     if rect.width == 0 or rect.height == 0:
@@ -541,6 +545,7 @@ def pixelCollision(rect1, rect2, hitmask1, hitmask2):
     for x in xrange(rect.width):
         for y in xrange(rect.height):
             if hitmask1[x1+x][y1+y] and hitmask2[x2+x][y2+y]:
+                static.FLAG = True
                 return True
     return False
 
