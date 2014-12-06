@@ -414,14 +414,13 @@ def checkCrash(player, upperPipes, lowerPipes):
             lPipeRect = pygame.Rect(lPipe['x'], lPipe['y'], pipeW, pipeH)
             #print "lower Pipe Coordinates = ", lPipe['x'], ", ", lPipe['y']
 
-
-
-
             for i in range (0, len(distance)):
                 if distance[i][0] < 0:
                     distance.pop(i)
+
             if distance != []:
                 print distance
+
             distance.append([lPipe['x'] - player['x'] + player['w'] - pipeW, lPipe['y'] - player['y'] - player['h']])
 
             #time.sleep(1)
