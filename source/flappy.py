@@ -1,6 +1,7 @@
 from itertools import cycle
 import random
 import sys
+import time
 
 import pygame
 from pygame.locals import *
@@ -147,6 +148,7 @@ def showWelcomeAnimation():
     basex = 0
     # amount by which base can maximum shift to left
     baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
+
     # player shm for up-down motion on welcome screen
     playerShmVals = {'val': 0, 'dir': 1}
 
@@ -161,7 +163,7 @@ def showWelcomeAnimation():
                 return {
                     'playery': playery + playerShmVals['val'],
                     'basex': basex,
-                    'playerIndexGen': playerIndexGen
+                    'playerIndexGen': playerIndexGen,
                 }
 
         # adjust playery, playerIndex, basex
@@ -170,7 +172,6 @@ def showWelcomeAnimation():
         loopIter = (loopIter + 1) % 30
         basex = -((-basex + 4) % baseShift)
         playerShm(playerShmVals)
-
 
         # draw sprites
         SCREEN.blit(IMAGES['background'], (0,0))
@@ -187,6 +188,7 @@ def mainGame(movementInfo):
     score = playerIndex = loopIter = 0
     playerIndexGen = movementInfo['playerIndexGen']
     playerx, playery = int(SCREENWIDTH * 0.2), movementInfo['playery']
+
     basex = movementInfo['basex']
     baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
 
@@ -199,6 +201,8 @@ def mainGame(movementInfo):
         {'x': SCREENWIDTH + 200, 'y': newPipe1[0]['y']},
         {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[0]['y']},
     ]
+
+    #print upperPipes
     # list of lowerpipe
     lowerPipes = [
         {'x': SCREENWIDTH + 200, 'y': newPipe1[1]['y']},
@@ -362,7 +366,7 @@ def getRandomPipe():
     gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
     gapY += int(BASEY * 0.2)
     pipeHeight = IMAGES['pipe'][0].get_height()
-    pipeX = SCREENWIDTH + 10
+    pipeX = SCREENWIDTH + 10 # ? don't know why 10 is added
 
     return [
         {'x': pipeX, 'y': gapY - pipeHeight},  # upper pipe
@@ -386,7 +390,7 @@ def showScore(score):
 
 
 def checkCrash(player, upperPipes, lowerPipes):
-    """returns True if player collders with base or pipes."""
+    """returns True if player collides with base or pipes."""
     pi = player['index']
     player['w'] = IMAGES['player'][0].get_width()
     player['h'] = IMAGES['player'][0].get_height()
@@ -401,10 +405,35 @@ def checkCrash(player, upperPipes, lowerPipes):
         pipeW = IMAGES['pipe'][0].get_width()
         pipeH = IMAGES['pipe'][0].get_height()
 
+        distance = []
+
         for uPipe, lPipe in zip(upperPipes, lowerPipes):
             # upper and lower pipe rects
             uPipeRect = pygame.Rect(uPipe['x'], uPipe['y'], pipeW, pipeH)
+            #print "upper Pipe Coordinates = ", uPipe['x'], ", ", uPipe['y']
             lPipeRect = pygame.Rect(lPipe['x'], lPipe['y'], pipeW, pipeH)
+            #print "lower Pipe Coordinates = ", lPipe['x'], ", ", lPipe['y']
+
+
+
+
+            for i in range (0, len(distance)):
+                if distance[i][0] < 0:
+                    distance.pop(i)
+            if distance != []:
+                print distance
+            distance.append([lPipe['x'] - player['x'] + player['w'] - pipeW, lPipe['y'] - player['y'] - player['h']])
+
+            #time.sleep(1)
+            #if (lPipe['x'] - lPipe['x'] - player['x'] + player['w'] - pipeW) < 0:
+            #    distance.pop(0)
+            #print distance
+            # if len(distance) == 3:
+            #     print distance[2]
+            # elif len(distance) == 2:
+            #     print distance[1]
+            # elif len(distance) == 1:
+            #     print distance[0]
 
             # player and upper/lower pipe hitmasks
             pHitMask = HITMASKS['player'][pi]
