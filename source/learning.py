@@ -1,8 +1,7 @@
 import random
 
-
 class QLearn:
-    def __init__(self, actions, epsilon=0.1, alpha=0.2, gamma=0.9):
+    def __init__(self, actions, epsilon, alpha, gamma):
         self.q = {}
 
         self.epsilon = epsilon
@@ -12,14 +11,16 @@ class QLearn:
 
     def getQ(self, state, action):
         return self.q.get((state, action), 0.0)
-        # return self.q.get((state, action), 1.0)
+        #return self.q.get((state, action), 1.0)
 
     def learnQ(self, state, action, reward, value):
         oldv = self.q.get((state, action), None)
+        #print oldv
         if oldv is None:
             self.q[(state, action)] = reward
         else:
             self.q[(state, action)] = oldv + self.alpha * (value - oldv)
+        #print "learnQ value = ", self.q[(state, action)]
 
     def chooseAction(self, state):
         if random.random() < self.epsilon:
@@ -33,6 +34,8 @@ class QLearn:
                 i = random.choice(best)
             else:
                 i = q.index(maxQ)
+
+            print "q = ", q
 
             action = self.actions[i]
         return action
