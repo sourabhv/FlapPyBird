@@ -1,6 +1,6 @@
 import random
 
-class QLearn:
+class QLearning:
     def __init__(self, actions, epsilon, alpha, gamma):
         self.q = {}
 

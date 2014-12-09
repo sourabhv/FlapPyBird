@@ -10,8 +10,9 @@ from pygame.locals import *
 
 class static:
     FLAG = False
+    REWARD = 0
 
-FPS = 300
+FPS = 30
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
 # amount by which base can maximum shift to left
@@ -25,7 +26,8 @@ QValue = []
 lastState = ()
 lastAction = static.FLAG
 
-birdAgent = learning.QLearn(actions=ACTIONLIST, epsilon=0.1, alpha=0.7, gamma=100)
+
+birdAgent = learning.QLearning(ACTIONLIST, 0.2, 0.7, 0.9)
 
 # list of all possible players (tuple of 3 positions of flap)
 PLAYERS_LIST = (
@@ -64,15 +66,12 @@ PIPES_LIST = (
 
 
 def main():
-    static.FLAG = False
+    #static.FLAG = True
     global SCREEN, FPSCLOCK
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     SCREEN = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
     pygame.display.set_caption('Flappy Bird')
-
-
-
 
     # numbers sprites for score display
     IMAGES['numbers'] = (
@@ -180,17 +179,14 @@ def showWelcomeAnimation():
                     'basex': basex,
                     'playerIndexGen': playerIndexGen,
                 }
-
         if static.FLAG:
             # make first flap sound and return values for mainGame
             SOUNDS['wing'].play()
-            static.FLAG = False
             return {
                 'playery': playery + playerShmVals['val'],
                 'basex': basex,
                 'playerIndexGen': playerIndexGen,
             }
-
 
         # adjust playery, playerIndex, basex
         if (loopIter + 1) % 5 == 0:
@@ -237,7 +233,7 @@ def mainGame(movementInfo):
 
     pipeVelX = -4
 
-    # player velocity, max velocity, downward accleration, accleration on flap
+    # player velocity, max velocity, downward acceleration, acceleration on flap
     playerVelY    = -9   # player's velocity along Y, default same as playerFlapped
     playerMaxVelY = 10   # max vel along Y, max descend speed
     playerMinVelY = -8   # min vel along Y, max ascend speed
@@ -259,18 +255,17 @@ def mainGame(movementInfo):
 
         if static.FLAG:
             #time.sleep(1)
-            static.FLAG = False
             if playery > -2 * IMAGES['player'][0].get_height():
                 playerVelY = playerFlapAcc
                 playerFlapped = True
                 SOUNDS['wing'].play()
 
-        update({'x': playerx, 'y': playery, 'index': playerIndex}, upperPipes, lowerPipes)
-
-
         # check for crash here
         crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex}, upperPipes, lowerPipes)
         if crashTest[0]:
+            static.REWARD = -1000
+            update({'x': playerx, 'y': playery, 'index': playerIndex}, upperPipes, lowerPipes)
+            static.REWARD = 0
             return {
                 'y': playery,
                 'groundCrash': crashTest[1],
@@ -280,6 +275,10 @@ def mainGame(movementInfo):
                 'score': score,
                 'playerVelY': playerVelY,
             }
+        elif not crashTest[0]:
+            static.REWARD = 1
+            # call the update function
+            update({'x': playerx, 'y': playery, 'index': playerIndex}, upperPipes, lowerPipes)
 
         # check for score
         playerMidPos = playerx + IMAGES['player'][0].get_width() / 2
@@ -338,7 +337,7 @@ def mainGame(movementInfo):
 
 
 def showGameOverScreen(crashInfo):
-    """crashes the player down ans shows game over image"""
+    """crashes the player down and shows game over image"""
     score = crashInfo['score']
     playerx = SCREENWIDTH * 0.2
     playery = crashInfo['y']
@@ -364,9 +363,7 @@ def showGameOverScreen(crashInfo):
                 if playery + playerHeight >= BASEY - 1:
                     return
         if static.FLAG:
-            #static.FLAG = False
             if playery + playerHeight >= BASEY - 1:
-                #static.FLAG = True
                 return
 
         # player y shift
@@ -440,7 +437,6 @@ def checkCrash(player, upperPipes, lowerPipes):
 
     # if player crashes into ground
     if player['y'] + player['h'] >= BASEY - 1:
-        static.FLAG = True
         return [True, True]
     else:
 
@@ -470,30 +466,10 @@ def checkCrash(player, upperPipes, lowerPipes):
 def update(player, upperPipes, lowerPipes):
 
     distance = []
-
-    #birdAgent = learning.QLearn(actions=ACTIONLIST, alpha=0.7, gamma=0.9, epsilon=0.1)
-    pi = player['index']
     player['w'] = IMAGES['player'][0].get_width()
     player['h'] = IMAGES['player'][0].get_height()
 
-    playerRect = pygame.Rect(player['x'], player['y'], player['w'], player['h'])
-    pipeW = IMAGES['pipe'][0].get_width()
-    pipeH = IMAGES['pipe'][0].get_height()
-
     for uPipe, lPipe in zip(upperPipes, lowerPipes):
-        # upper and lower pipe Rects
-        uPipeRect = pygame.Rect(uPipe['x'], uPipe['y'], pipeW, pipeH)
-        lPipeRect = pygame.Rect(lPipe['x'], lPipe['y'], pipeW, pipeH)
-
-        # player and upper/lower pipe hitmasks
-        pHitMask = HITMASKS['player'][pi]
-        uHitmask = HITMASKS['pipe'][0]
-        lHitmask = HITMASKS['pipe'][1]
-
-        # if bird collided with uPipe or lPipe
-        uCollide = pixelCollision(playerRect, uPipeRect, pHitMask, uHitmask)
-        lCollide = pixelCollision(playerRect, lPipeRect, pHitMask, lHitmask)
-
         # add the distance of next pipes
         distance.append([lPipe['x'] - player['x'] + player['w'], lPipe['y'] - player['y'] - player['h']])
 
@@ -510,27 +486,14 @@ def update(player, upperPipes, lowerPipes):
             Q.append([state, action])
             lastState = Q[len(Q)-2][0]
             lastAction = Q[len(Q)-2][1]
-            if lastState == state:
-                static.FLAG = False
-
-
-    # if player crashes into ground
-    if player['y'] + player['h'] >= BASEY - 1:
-        # update reward to -1000
-        birdAgent.learn(lastState, lastAction, -1000, state)
-    else:
-        if uCollide or lCollide:
-            birdAgent.learn(lastState, lastAction, -1000, state)
-        else:
-            # give rewards
-            birdAgent.learn(lastState, lastAction, 1, state)
+            #if lastState == state:
+            #    static.FLAG = False
+    birdAgent.learn(lastState, lastAction, static.REWARD, state)
     static.FLAG = birdAgent.chooseAction(state)
-
-
+    #birdAgent.printV()
     #print static.FLAG
     #print birdAgent.printQ()
     #print birdAgent.printV()
-
 
 def pixelCollision(rect1, rect2, hitmask1, hitmask2):
     """Checks if two objects collide and not just their reacts"""
@@ -545,7 +508,6 @@ def pixelCollision(rect1, rect2, hitmask1, hitmask2):
     for x in xrange(rect.width):
         for y in xrange(rect.height):
             if hitmask1[x1+x][y1+y] and hitmask2[x2+x][y2+y]:
-                static.FLAG = True
                 return True
     return False
 
