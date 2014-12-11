@@ -35,7 +35,8 @@ class QLearning:
             else:
                 i = q.index(maxQ)
 
-            print "q = ", q
+            print " q = ", state, q
+            print i
 
             action = self.actions[i]
         return action

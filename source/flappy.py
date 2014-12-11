@@ -9,10 +9,10 @@ import pygame
 from pygame.locals import *
 
 class static:
-    FLAG = False
+    FLAG = True
     REWARD = 0
 
-FPS = 30
+FPS = 1
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
 # amount by which base can maximum shift to left
@@ -182,6 +182,7 @@ def showWelcomeAnimation():
         if static.FLAG:
             # make first flap sound and return values for mainGame
             SOUNDS['wing'].play()
+            static.FLAG = False
             return {
                 'playery': playery + playerShmVals['val'],
                 'basex': basex,
@@ -255,6 +256,7 @@ def mainGame(movementInfo):
 
         if static.FLAG:
             #time.sleep(1)
+            #static.FLAG = False
             if playery > -2 * IMAGES['player'][0].get_height():
                 playerVelY = playerFlapAcc
                 playerFlapped = True
@@ -266,6 +268,7 @@ def mainGame(movementInfo):
             static.REWARD = -1000
             update({'x': playerx, 'y': playery, 'index': playerIndex}, upperPipes, lowerPipes)
             static.REWARD = 0
+            #static.FLAG = True
             return {
                 'y': playery,
                 'groundCrash': crashTest[1],
