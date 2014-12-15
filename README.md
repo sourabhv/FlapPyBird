@@ -6,31 +6,27 @@ Requirements:
 ------
 [pygame](http://www.pygame.org/news.html)
 
-Q-Learning Algorithm
+Algorithm
 ------
-Q(S,A,gamma,alpha) 
+Q-Learning
 
-    Variables
-    
-    	S is a set of states 
-    	
-        A is a set of actions 
-        
-        gamma the discount 
-        
-        alpha is learning rate 
-        
-    Local
-    	real array Q[S,A] 
-        previous state s 
-        previous action a 
-    initialize Q[S,A] arbitrarily 
-    observe current state s 
-    repeat
-        select and carry out an action a 
-        observe reward r and next state s' 
-        Q[s,a] = Q[s,a] + alpha(r + gamma(max(a' Q[s',a'] - Q[s,a])))
-        s = s' until termination
+    Q(S,A,gamma,alpha) 
+        Variables
+        	S is a set of states 
+            A is a set of actions 
+            gamma the discount 
+            alpha is learning rate 
+        Local
+        	real array Q[S,A] 
+            previous state s 
+            previous action a 
+        initialize Q[S,A] arbitrarily 
+        observe current state s 
+        repeat
+            select and carry out an action a 
+            observe reward r and next state s' 
+            Q[s,a] = Q[s,a] + alpha(r + gamma(max(a' Q[s',a'] - Q[s,a])))
+            s = s' until termination
 
 How-to
 ------
