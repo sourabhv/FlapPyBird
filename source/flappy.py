@@ -12,7 +12,7 @@ class static:
     FLAG = True
     REWARD = 0
 
-FPS = 1
+FPS = 30
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
 # amount by which base can maximum shift to left

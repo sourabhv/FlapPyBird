@@ -20,7 +20,7 @@ class QLearning:
             self.q[(state, action)] = reward
         else:
             self.q[(state, action)] = oldv + self.alpha * (value - oldv)
-        #print "learnQ value = ", self.q[(state, action)]
+        print state, self.q[(state, action)]
 
     def chooseAction(self, state):
         if random.random() < self.epsilon:
@@ -34,9 +34,6 @@ class QLearning:
                 i = random.choice(best)
             else:
                 i = q.index(maxQ)
-
-            print " q = ", state, q
-            print i
 
             action = self.actions[i]
         return action
