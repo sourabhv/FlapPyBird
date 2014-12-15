@@ -2,9 +2,6 @@ flappy-bird
 ------
 An AI way of playing Flappy Bird using Q-Learning made using [python-pygame][1]
 
-Requirements:
-------
-[pygame](http://www.pygame.org/news.html)
 
 Algorithm
 ------
