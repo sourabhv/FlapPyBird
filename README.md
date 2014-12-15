@@ -9,11 +9,17 @@ Requirements:
 Q-Learning Algorithm
 ------
 Q(S,A,gamma,alpha) 
+
     Variables
+    
     	S is a set of states 
+    	
         A is a set of actions 
+        
         gamma the discount 
+        
         alpha is learning rate 
+        
     Local
     	real array Q[S,A] 
         previous state s 
