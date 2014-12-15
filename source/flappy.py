@@ -1,19 +1,33 @@
 from itertools import cycle
 import random
 import sys
+import learning
+import math
+import time
 
 import pygame
 from pygame.locals import *
 
+class static:
+    FLAG = True
+    REWARD = 0
 
 FPS = 30
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
 # amount by which base can maximum shift to left
-PIPEGAPSIZE  = 100 # gap between upper and lower part of pipe
-BASEY        = SCREENHEIGHT * 0.79
+PIPEGAPSIZE = 150 # gap between upper and lower part of pipe
+BASEY = SCREENHEIGHT * 0.79
 # image, sound and hitmask  dicts
 IMAGES, SOUNDS, HITMASKS = {}, {}, {}
+Q = []
+ACTIONLIST = [True, False]
+QValue = []
+lastState = ()
+lastAction = static.FLAG
+
+
+birdAgent = learning.QLearning(ACTIONLIST, 0.2, 0.7, 0.9)
 
 # list of all possible players (tuple of 3 positions of flap)
 PLAYERS_LIST = (
@@ -52,6 +66,7 @@ PIPES_LIST = (
 
 
 def main():
+    #static.FLAG = True
     global SCREEN, FPSCLOCK
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
@@ -156,7 +171,7 @@ def showWelcomeAnimation():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
-            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+            if (event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP)):
                 # make first flap sound and return values for mainGame
                 SOUNDS['wing'].play()
                 return {
@@ -164,6 +179,15 @@ def showWelcomeAnimation():
                     'basex': basex,
                     'playerIndexGen': playerIndexGen,
                 }
+        if static.FLAG:
+            # make first flap sound and return values for mainGame
+            SOUNDS['wing'].play()
+            static.FLAG = False
+            return {
+                'playery': playery + playerShmVals['val'],
+                'basex': basex,
+                'playerIndexGen': playerIndexGen,
+            }
 
         # adjust playery, playerIndex, basex
         if (loopIter + 1) % 5 == 0:
@@ -201,6 +225,7 @@ def mainGame(movementInfo):
         {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[0]['y']},
     ]
 
+    #print upperPipes
     # list of lowerpipe
     lowerPipes = [
         {'x': SCREENWIDTH + 200, 'y': newPipe1[1]['y']},
@@ -209,12 +234,12 @@ def mainGame(movementInfo):
 
     pipeVelX = -4
 
-    # player velocity, max velocity, downward accleration, accleration on flap
-    playerVelY    =  -9   # player's velocity along Y, default same as playerFlapped
-    playerMaxVelY =  10   # max vel along Y, max descend speed
-    playerMinVelY =  -8   # min vel along Y, max ascend speed
-    playerAccY    =   1   # players downward accleration
-    playerFlapAcc =  -9   # players speed on flapping
+    # player velocity, max velocity, downward acceleration, acceleration on flap
+    playerVelY    = -9   # player's velocity along Y, default same as playerFlapped
+    playerMaxVelY = 10   # max vel along Y, max descend speed
+    playerMinVelY = -8   # min vel along Y, max ascend speed
+    playerAccY    =  1   # players downward acceleration
+    playerFlapAcc = -9   # players speed on flapping
     playerFlapped = False # True when player flaps
 
 
@@ -223,16 +248,27 @@ def mainGame(movementInfo):
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
-            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+            if (event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP)):
                 if playery > -2 * IMAGES['player'][0].get_height():
                     playerVelY = playerFlapAcc
                     playerFlapped = True
                     SOUNDS['wing'].play()
 
+        if static.FLAG:
+            #time.sleep(1)
+            #static.FLAG = False
+            if playery > -2 * IMAGES['player'][0].get_height():
+                playerVelY = playerFlapAcc
+                playerFlapped = True
+                SOUNDS['wing'].play()
+
         # check for crash here
-        crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex},
-                               upperPipes, lowerPipes)
+        crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex}, upperPipes, lowerPipes)
         if crashTest[0]:
+            static.REWARD = -1000
+            update({'x': playerx, 'y': playery, 'index': playerIndex}, upperPipes, lowerPipes)
+            static.REWARD = 0
+            #static.FLAG = True
             return {
                 'y': playery,
                 'groundCrash': crashTest[1],
@@ -242,6 +278,10 @@ def mainGame(movementInfo):
                 'score': score,
                 'playerVelY': playerVelY,
             }
+        elif not crashTest[0]:
+            static.REWARD = 1
+            # call the update function
+            update({'x': playerx, 'y': playery, 'index': playerIndex}, upperPipes, lowerPipes)
 
         # check for score
         playerMidPos = playerx + IMAGES['player'][0].get_width() / 2
@@ -291,6 +331,8 @@ def mainGame(movementInfo):
         SCREEN.blit(IMAGES['base'], (basex, BASEY))
         # print score so player overlaps the score
         showScore(score)
+        #if score > 0:
+            #print score
         SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery))
 
         pygame.display.update()
@@ -298,7 +340,7 @@ def mainGame(movementInfo):
 
 
 def showGameOverScreen(crashInfo):
-    """crashes the player down ans shows gameover image"""
+    """crashes the player down and shows game over image"""
     score = crashInfo['score']
     playerx = SCREENWIDTH * 0.2
     playery = crashInfo['y']
@@ -323,6 +365,9 @@ def showGameOverScreen(crashInfo):
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
                 if playery + playerHeight >= BASEY - 1:
                     return
+        if static.FLAG:
+            if playery + playerHeight >= BASEY - 1:
+                return
 
         # player y shift
         if playery + playerHeight < BASEY - 1:
@@ -364,7 +409,7 @@ def getRandomPipe():
     gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
     gapY += int(BASEY * 0.2)
     pipeHeight = IMAGES['pipe'][0].get_height()
-    pipeX = SCREENWIDTH + 10
+    pipeX = SCREENWIDTH + 10 # ? don't know why 10 is added
 
     return [
         {'x': pipeX, 'y': gapY - pipeHeight},  # upper pipe
@@ -388,7 +433,7 @@ def showScore(score):
 
 
 def checkCrash(player, upperPipes, lowerPipes):
-    """returns True if player collders with base or pipes."""
+    """returns True if player collides with base or pipes."""
     pi = player['index']
     player['w'] = IMAGES['player'][0].get_width()
     player['h'] = IMAGES['player'][0].get_height()
@@ -404,7 +449,7 @@ def checkCrash(player, upperPipes, lowerPipes):
         pipeH = IMAGES['pipe'][0].get_height()
 
         for uPipe, lPipe in zip(upperPipes, lowerPipes):
-            # upper and lower pipe rects
+            # upper and lower pipe Rects
             uPipeRect = pygame.Rect(uPipe['x'], uPipe['y'], pipeW, pipeH)
             lPipeRect = pygame.Rect(lPipe['x'], lPipe['y'], pipeW, pipeH)
 
@@ -413,17 +458,48 @@ def checkCrash(player, upperPipes, lowerPipes):
             uHitmask = HITMASKS['pipe'][0]
             lHitmask = HITMASKS['pipe'][1]
 
-            # if bird collided with upipe or lpipe
+            # if bird collided with uPipe or lPipe
             uCollide = pixelCollision(playerRect, uPipeRect, pHitMask, uHitmask)
             lCollide = pixelCollision(playerRect, lPipeRect, pHitMask, lHitmask)
 
             if uCollide or lCollide:
                 return [True, False]
-
     return [False, False]
 
+def update(player, upperPipes, lowerPipes):
+
+    distance = []
+    player['w'] = IMAGES['player'][0].get_width()
+    player['h'] = IMAGES['player'][0].get_height()
+
+    for uPipe, lPipe in zip(upperPipes, lowerPipes):
+        # add the distance of next pipes
+        distance.append([lPipe['x'] - player['x'] + player['w'], lPipe['y'] - player['y'] - player['h']])
+
+        # remove the distance calculation of the pipe that has been crossed
+        for i in range(0, len(distance)):
+            if distance[i][0] < 0:
+                distance.pop(i)
+
+        # since distance [] is of no use
+        if distance != []:
+            state = distance[0]
+            state = tuple(state)
+            action = static.FLAG
+            Q.append([state, action])
+            lastState = Q[len(Q)-2][0]
+            lastAction = Q[len(Q)-2][1]
+            #if lastState == state:
+            #    static.FLAG = False
+    birdAgent.learn(lastState, lastAction, static.REWARD, state)
+    static.FLAG = birdAgent.chooseAction(state)
+    #birdAgent.printV()
+    #print static.FLAG
+    #print birdAgent.printQ()
+    #print birdAgent.printV()
+
 def pixelCollision(rect1, rect2, hitmask1, hitmask2):
-    """Checks if two objects collide and not just their rects"""
+    """Checks if two objects collide and not just their reacts"""
     rect = rect1.clip(rect2)
 
     if rect.width == 0 or rect.height == 0:
@@ -449,3 +525,4 @@ def getHitmask(image):
 
 if __name__ == '__main__':
     main()
+
