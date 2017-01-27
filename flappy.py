@@ -51,6 +51,12 @@ PIPES_LIST = (
 )
 
 
+try:
+    xrange
+except NameError:
+    xrange = range
+
+
 def main():
     global SCREEN, FPSCLOCK
     pygame.init()
@@ -167,7 +173,7 @@ def showWelcomeAnimation():
 
         # adjust playery, playerIndex, basex
         if (loopIter + 1) % 5 == 0:
-            playerIndex = playerIndexGen.next()
+            playerIndex = next(playerIndexGen)
         loopIter = (loopIter + 1) % 30
         basex = -((-basex + 4) % baseShift)
         playerShm(playerShmVals)
@@ -253,7 +259,7 @@ def mainGame(movementInfo):
 
         # playerIndex basex change
         if (loopIter + 1) % 3 == 0:
-            playerIndex = playerIndexGen.next()
+            playerIndex = next(playerIndexGen)
         loopIter = (loopIter + 1) % 30
         basex = -((-basex + 100) % baseShift)
 
@@ -441,9 +447,9 @@ def pixelCollision(rect1, rect2, hitmask1, hitmask2):
 def getHitmask(image):
     """returns a hitmask using an image's alpha."""
     mask = []
-    for x in range(image.get_width()):
+    for x in xrange(image.get_width()):
         mask.append([])
-        for y in range(image.get_height()):
+        for y in xrange(image.get_height()):
             mask[x].append(bool(image.get_at((x,y))[3]))
     return mask
 
