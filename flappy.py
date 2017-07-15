@@ -222,6 +222,7 @@ def mainGame(movementInfo):
     playerAccY    =   1   # players downward accleration
     playerRot     =  45   # player's rotation
     playerVelRot  =   3   # angular speed
+    playerRotThr  =  20   # rotation threshold
     playerFlapAcc =  -9   # players speed on flapping
     playerFlapped = False # True when player flaps
 
@@ -310,11 +311,11 @@ def mainGame(movementInfo):
         showScore(score)
 
         # Player rotation has a threshold
-        visibleRot = 20
-        if playerRot <= 20:
+        visibleRot = playerRotThr
+        if playerRot <= playerRotThr:
             visibleRot = playerRot
         
-        playerSurface = pygame.transform.rotate(IMAGES['player'][playerIndex], visibleRot);
+        playerSurface = pygame.transform.rotate(IMAGES['player'][playerIndex], visibleRot)
         SCREEN.blit(playerSurface, (playerx, playery))
 
         pygame.display.update()
@@ -373,7 +374,7 @@ def showGameOverScreen(crashInfo):
         SCREEN.blit(IMAGES['base'], (basex, BASEY))
         showScore(score)
 
-        playerSurface = pygame.transform.rotate(IMAGES['player'][1], playerRot);
+        playerSurface = pygame.transform.rotate(IMAGES['player'][1], playerRot)
         SCREEN.blit(playerSurface, (playerx,playery))
 
         FPSCLOCK.tick(FPS)
