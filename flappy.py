@@ -220,6 +220,8 @@ def mainGame(movementInfo):
     playerMaxVelY =  10   # max vel along Y, max descend speed
     playerMinVelY =  -8   # min vel along Y, max ascend speed
     playerAccY    =   1   # players downward accleration
+    playerRot     =  45   # player's rotation
+    playerVelRot  =   3   # angular speed
     playerFlapAcc =  -9   # players speed on flapping
     playerFlapped = False # True when player flaps
 
@@ -247,6 +249,7 @@ def mainGame(movementInfo):
                 'lowerPipes': lowerPipes,
                 'score': score,
                 'playerVelY': playerVelY,
+                'playerRot': playerRot
             }
 
         # check for score
@@ -263,11 +266,19 @@ def mainGame(movementInfo):
         loopIter = (loopIter + 1) % 30
         basex = -((-basex + 100) % baseShift)
 
+        # rotate the player
+        if playerRot > -90:
+            playerRot -= playerVelRot
+
         # player's movement
         if playerVelY < playerMaxVelY and not playerFlapped:
             playerVelY += playerAccY
         if playerFlapped:
             playerFlapped = False
+
+            # more rotation to cover the threshold (calculated in visible rotation)
+            playerRot = 45
+
         playerHeight = IMAGES['player'][playerIndex].get_height()
         playery += min(playerVelY, BASEY - playery - playerHeight)
 
@@ -297,7 +308,14 @@ def mainGame(movementInfo):
         SCREEN.blit(IMAGES['base'], (basex, BASEY))
         # print score so player overlaps the score
         showScore(score)
-        SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery))
+
+        # Player rotation has a threshold
+        visibleRot = 20
+        if playerRot <= 20:
+            visibleRot = playerRot
+        
+        playerSurface = pygame.transform.rotate(IMAGES['player'][playerIndex], visibleRot);
+        SCREEN.blit(playerSurface, (playerx, playery))
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
@@ -311,6 +329,8 @@ def showGameOverScreen(crashInfo):
     playerHeight = IMAGES['player'][0].get_height()
     playerVelY = crashInfo['playerVelY']
     playerAccY = 2
+    playerRot = crashInfo['playerRot']
+    playerVelRot = 7
 
     basex = crashInfo['basex']
 
@@ -338,6 +358,11 @@ def showGameOverScreen(crashInfo):
         if playerVelY < 15:
             playerVelY += playerAccY
 
+        # rotate only when it's a pipe crash
+        if not crashInfo['groundCrash']:
+            if playerRot > -90:
+                playerRot -= playerVelRot
+
         # draw sprites
         SCREEN.blit(IMAGES['background'], (0,0))
 
@@ -347,7 +372,9 @@ def showGameOverScreen(crashInfo):
 
         SCREEN.blit(IMAGES['base'], (basex, BASEY))
         showScore(score)
-        SCREEN.blit(IMAGES['player'][1], (playerx,playery))
+
+        playerSurface = pygame.transform.rotate(IMAGES['player'][1], playerRot);
+        SCREEN.blit(playerSurface, (playerx,playery))
 
         FPSCLOCK.tick(FPS)
         pygame.display.update()
