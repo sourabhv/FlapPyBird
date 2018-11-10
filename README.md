@@ -12,9 +12,11 @@ How-to
 
 3. Clone this repository: `git clone https://github.com/sourabhv/FlappyBirdClone.git` or click `Download ZIP` in right panel and extract it.
 
-4. Run `python flappy.py` from the repo's directory
+4. Install dependencies by running `pip install -r requirements.txt` in the cloned directory/extracted zip directory.
 
-5. use <kbd>&uarr;</kbd> or <kbd>Space</kbd> key to play and <kbd>Esc</kbd> to close the game.
+5. Run `python flappy.py` from the repo's directory
+
+6. use <kbd>&uarr;</kbd> or <kbd>Space</kbd> key to play and <kbd>Esc</kbd> to close the game.
 
   (Note: Install pyGame for same version python as above)
 
