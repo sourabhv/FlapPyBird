@@ -26,3 +26,9 @@ ScreenShot
 ![Flappy Bird](screenshot1.png)
 
 [1]: http://www.pygame.org
+
+Fury Mode
+----------
+Flappy Bird is too hard ? Press 1 and enter into the Fury Mode, the bird will break all the pipes.
+
+/!\ This mode has no purpose, except fun.

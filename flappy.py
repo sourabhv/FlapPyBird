@@ -1,6 +1,7 @@
 from itertools import cycle
 import random
 import sys
+import math
 
 import pygame
 from pygame.locals import *
@@ -14,6 +15,15 @@ PIPEGAPSIZE  = 100 # gap between upper and lower part of pipe
 BASEY        = SCREENHEIGHT * 0.79
 # image, sound and hitmask  dicts
 IMAGES, SOUNDS, HITMASKS = {}, {}, {}
+# True if the user plays the fury mode
+FURYMODE = False
+# In fury mode, the pipe sapwn system is different than in
+# normal mode, we add pipes with a "timer" (a frame counter)
+FURYMODE_FRAMES_TO_SPAWN_PIPES = 35
+# pipes particles amount (for each pipe)
+FURYMODE_PARTICLES = 8
+# max particles for each pipe hit
+FURYMODE_PARTICLES_MAX = 48
 
 # list of all possible players (tuple of 3 positions of flap)
 PLAYERS_LIST = (
@@ -85,6 +95,11 @@ def main():
     # base (ground) sprite
     IMAGES['base'] = pygame.image.load('assets/sprites/base.png').convert_alpha()
 
+    # the "fury mode" button for welcome screen (with the key)
+    IMAGES['furymode'] = pygame.image.load('assets/sprites/furymode.png').convert_alpha()
+    IMAGES['furymode-key'] = pygame.image.load('assets/sprites/furymode-key.png').convert_alpha()
+
+
     # sounds
     if 'win' in sys.platform:
         soundExt = '.wav'
@@ -118,6 +133,32 @@ def main():
             pygame.image.load(PIPES_LIST[pipeindex]).convert_alpha(),
         )
 
+        # pipes' particles for fury mode
+        # pipes are green
+        if pipeindex == 0:
+            IMAGES['pipe-particle'] = (
+                pygame.image.load('assets/sprites/particles-green-0.png').convert_alpha(),
+                pygame.image.load('assets/sprites/particles-green-1.png').convert_alpha(),
+                pygame.image.load('assets/sprites/particles-green-2.png').convert_alpha(),
+                pygame.image.load('assets/sprites/particles-green-3.png').convert_alpha(),
+                pygame.image.load('assets/sprites/particles-green-4.png').convert_alpha(),
+                pygame.image.load('assets/sprites/particles-green-5.png').convert_alpha(),
+                pygame.image.load('assets/sprites/particles-green-6.png').convert_alpha(),
+                pygame.image.load('assets/sprites/particles-green-7.png').convert_alpha(),
+            )
+        else:
+            IMAGES['pipe-particle'] = (
+                pygame.image.load('assets/sprites/particles-red-0.png').convert_alpha(),
+                pygame.image.load('assets/sprites/particles-red-1.png').convert_alpha(),
+                pygame.image.load('assets/sprites/particles-red-2.png').convert_alpha(),
+                pygame.image.load('assets/sprites/particles-red-3.png').convert_alpha(),
+                pygame.image.load('assets/sprites/particles-red-4.png').convert_alpha(),
+                pygame.image.load('assets/sprites/particles-red-5.png').convert_alpha(),
+                pygame.image.load('assets/sprites/particles-red-6.png').convert_alpha(),
+                pygame.image.load('assets/sprites/particles-red-7.png').convert_alpha(),
+            )
+
+
         # hismask for pipes
         HITMASKS['pipe'] = (
             getHitmask(IMAGES['pipe'][0]),
@@ -138,6 +179,8 @@ def main():
 
 def showWelcomeAnimation():
     """Shows welcome screen animation of flappy bird"""
+    global FURYMODE
+
     # index of player to blit on screen
     playerIndex = 0
     playerIndexGen = cycle([0, 1, 2, 1])
@@ -149,6 +192,12 @@ def showWelcomeAnimation():
 
     messagex = int((SCREENWIDTH - IMAGES['message'].get_width()) / 2)
     messagey = int(SCREENHEIGHT * 0.12)
+
+    furymodex = int((SCREENWIDTH - IMAGES['furymode'].get_width()) / 2)
+    furymodey = int(SCREENHEIGHT * 0.68)
+    # just at right of the fury mode button (8 is right padding)
+    furymodeKeyX = furymodex + IMAGES['furymode'].get_width() + 8
+    furymodeKeyY = furymodey + IMAGES['furymode-key'].get_height() // 2
 
     basex = 0
     # amount by which base can maximum shift to left
@@ -162,6 +211,16 @@ def showWelcomeAnimation():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
+            # (1) key for fury mode
+            if event.type == KEYDOWN and event.key == K_1:
+                FURYMODE = True
+                # make first flap sound and return values for mainGame
+                SOUNDS['wing'].play()
+                return {
+                    'playery': playery + playerShmVals['val'],
+                    'basex': basex,
+                    'playerIndexGen': playerIndexGen,
+                }
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
                 # make first flap sound and return values for mainGame
                 SOUNDS['wing'].play()
@@ -184,12 +243,16 @@ def showWelcomeAnimation():
                     (playerx, playery + playerShmVals['val']))
         SCREEN.blit(IMAGES['message'], (messagex, messagey))
         SCREEN.blit(IMAGES['base'], (basex, BASEY))
+        SCREEN.blit(IMAGES['furymode'], (furymodex, furymodey))
+        SCREEN.blit(IMAGES['furymode-key'], (furymodeKeyX, furymodeKeyY))
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 
 
 def mainGame(movementInfo):
+    global FURYMODE, FURYMODE_FRAMES_TO_SPAWN_PIPES
+
     score = playerIndex = loopIter = 0
     playerIndexGen = movementInfo['playerIndexGen']
     playerx, playery = int(SCREENWIDTH * 0.2), movementInfo['playery']
@@ -197,21 +260,37 @@ def mainGame(movementInfo):
     basex = movementInfo['basex']
     baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
 
-    # get 2 new pipes to add to upperPipes lowerPipes list
-    newPipe1 = getRandomPipe()
-    newPipe2 = getRandomPipe()
+    # no need to spawn pipes at start
+    if FURYMODE:
+        # list of upper pipes
+        upperPipes = []
 
-    # list of upper pipes
-    upperPipes = [
-        {'x': SCREENWIDTH + 200, 'y': newPipe1[0]['y']},
-        {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[0]['y']},
-    ]
+        # list of lowerpipe
+        lowerPipes = []
 
-    # list of lowerpipe
-    lowerPipes = [
-        {'x': SCREENWIDTH + 200, 'y': newPipe1[1]['y']},
-        {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[1]['y']},
-    ]
+        # list of particles
+        # a particle is an object with attributes:
+        # {'x': position-x, 'y': position-y,
+        # 'vx': velocity-x, 'vy': velocity-y,
+        # 'i': index in textures list} 
+        particles = []
+
+    else:
+        # get 2 new pipes to add to upperPipes lowerPipes list
+        newPipe1 = getRandomPipe()
+        newPipe2 = getRandomPipe()
+
+        # list of upper pipes
+        upperPipes = [
+            {'x': SCREENWIDTH + 200, 'y': newPipe1[0]['y']},
+            {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[0]['y']},
+        ]
+
+        # list of lowerpipe
+        lowerPipes = [
+            {'x': SCREENWIDTH + 200, 'y': newPipe1[1]['y']},
+            {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[1]['y']},
+        ]
 
     pipeVelX = -4
 
@@ -225,6 +304,10 @@ def mainGame(movementInfo):
     playerRotThr  =  20   # rotation threshold
     playerFlapAcc =  -9   # players speed on flapping
     playerFlapped = False # True when player flaps
+
+
+    # The counter to spawn new pipes 
+    furymodePipeFrameCounter = 0
 
 
     while True:
@@ -241,17 +324,31 @@ def mainGame(movementInfo):
         # check for crash here
         crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex},
                                upperPipes, lowerPipes)
+
         if crashTest[0]:
-            return {
-                'y': playery,
-                'groundCrash': crashTest[1],
-                'basex': basex,
-                'upperPipes': upperPipes,
-                'lowerPipes': lowerPipes,
-                'score': score,
-                'playerVelY': playerVelY,
-                'playerRot': playerRot
-            }
+            # the player hits a pipe in fury mode
+            if FURYMODE and not crashTest[1]:
+                spawnParticles(particles, crashTest[3])
+
+                # remove the pipe
+                # it's an upper pipe
+                if crashTest[2]:
+                    upperPipes.remove(crashTest[3])
+                # it's a lower pipe
+                else:
+                    lowerPipes.remove(crashTest[3])
+
+            else:
+                return {
+                    'y': playery,
+                    'groundCrash': crashTest[1],
+                    'basex': basex,
+                    'upperPipes': upperPipes,
+                    'lowerPipes': lowerPipes,
+                    'score': score,
+                    'playerVelY': playerVelY,
+                    'playerRot': playerRot
+                }
 
         # check for score
         playerMidPos = playerx + IMAGES['player'][0].get_width() / 2
@@ -284,29 +381,74 @@ def mainGame(movementInfo):
         playery += min(playerVelY, BASEY - playery - playerHeight)
 
         # move pipes to left
-        for uPipe, lPipe in zip(upperPipes, lowerPipes):
+        for uPipe in upperPipes:
             uPipe['x'] += pipeVelX
+
+        for lPipe in lowerPipes:
             lPipe['x'] += pipeVelX
 
-        # add new pipe when first pipe is about to touch left of screen
-        if 0 < upperPipes[0]['x'] < 5:
-            newPipe = getRandomPipe()
-            upperPipes.append(newPipe[0])
-            lowerPipes.append(newPipe[1])
+        # update (add / remove) pipes and particles
+        if FURYMODE:
+            furymodePipeFrameCounter += 1
+            # the counter has the max value, we must spawn new pipes
+            if furymodePipeFrameCounter == FURYMODE_FRAMES_TO_SPAWN_PIPES:
+                # counter reset
+                furymodePipeFrameCounter = 0
+                
+                # pipe spawn
+                pipes = getRandomPipe()
+                upperPipes.append(pipes[0])
+                lowerPipes.append(pipes[1])
 
-        # remove first pipe if its out of the screen
-        if upperPipes[0]['x'] < -IMAGES['pipe'][0].get_width():
-            upperPipes.pop(0)
-            lowerPipes.pop(0)
+            # check if a pipe must be removed from the list
+            for uPipe in upperPipes:
+                if uPipe['x'] < -IMAGES['pipe'][0].get_width():
+                    upperPipes.remove(uPipe)
+            for lPipe in lowerPipes:
+                if lPipe['x'] < -IMAGES['pipe'][0].get_width():
+                    lowerPipes.remove(lPipe)
+
+            # particles
+            for particle in particles:
+                # speed
+                particle['x'] += particle['vx']
+                particle['y'] += particle['vy']
+
+                # gravity
+                particle['vy'] += playerAccY
+
+                # remove if the particle is under the ground
+                if particle['y'] >= BASEY:
+                    particles.remove(particle)
+
+        else:
+            # add new pipes when first pipe is about to touch left of screen
+            if 0 < upperPipes[0]['x'] < 5:
+                newPipe = getRandomPipe()
+                upperPipes.append(newPipe[0])
+                lowerPipes.append(newPipe[1])
+
+            # remove first pipe if its out of the screen
+            if upperPipes[0]['x'] < -IMAGES['pipe'][0].get_width():
+                lowerPipes.pop(0)
+                upperPipes.pop(0)
 
         # draw sprites
         SCREEN.blit(IMAGES['background'], (0,0))
 
-        for uPipe, lPipe in zip(upperPipes, lowerPipes):
+        for uPipe in upperPipes:
             SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'], uPipe['y']))
+
+        for lPipe in lowerPipes:
             SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
 
+        # pipes' particles
+        if FURYMODE:
+            for particle in particles:
+                SCREEN.blit(IMAGES['pipe-particle'][particle['i']], (particle['x'], particle['y']))
+
         SCREEN.blit(IMAGES['base'], (basex, BASEY))
+
         # print score so player overlaps the score
         showScore(score)
 
@@ -324,6 +466,10 @@ def mainGame(movementInfo):
 
 def showGameOverScreen(crashInfo):
     """crashes the player down ans shows gameover image"""
+    global FURYMODE
+
+    FURYMODE = False
+
     score = crashInfo['score']
     playerx = SCREENWIDTH * 0.2
     playery = crashInfo['y']
@@ -393,7 +539,7 @@ def playerShm(playerShm):
 
 
 def getRandomPipe():
-    """returns a randomly generated pipe"""
+    """ returns a randomly generated pipe """
     # y of gap between upper and lower pipe
     gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
     gapY += int(BASEY * 0.2)
@@ -404,7 +550,6 @@ def getRandomPipe():
         {'x': pipeX, 'y': gapY - pipeHeight},  # upper pipe
         {'x': pipeX, 'y': gapY + PIPEGAPSIZE}, # lower pipe
     ]
-
 
 def showScore(score):
     """displays score in center of screen"""
@@ -420,9 +565,41 @@ def showScore(score):
         SCREEN.blit(IMAGES['numbers'][digit], (Xoffset, SCREENHEIGHT * 0.1))
         Xoffset += IMAGES['numbers'][digit].get_width()
 
+def spawnParticles(particles, pipe):
+    """
+        Add paticles to the particle list randomly
+    generated with pipe's rectangle (hitbox)
+    """
+    global FURYMODE_PARTICLES, FURYMODE_PARTICLES_MAX, SOUNDS
+
+    pipeW = IMAGES['pipe'][0].get_width()
+    pipeH = IMAGES['pipe'][0].get_height()
+
+    for i in range(FURYMODE_PARTICLES_MAX):
+        particle = {}
+        particle['x'] = random.randint(pipe['x'], pipe['x'] + pipeW)
+        particle['y'] = random.randint(pipe['y'], pipe['y'] + pipeH)
+        particle['i'] = random.randint(1, FURYMODE_PARTICLES) - 1
+
+        # random angle for a minimum velocity
+        vel = random.random() * 10 + 5
+        aMin = -math.pi * .35
+        aMax = math.pi * .25
+        angle = random.random() * (aMax - aMin) + aMin
+        particle['vx'] = math.cos(angle) * vel
+        particle['vy'] = math.sin(angle) * vel
+
+        particles.append(particle)
+
+    # sound effect
+    SOUNDS['hit'].play()
+
+
 
 def checkCrash(player, upperPipes, lowerPipes):
     """returns True if player collders with base or pipes."""
+    global FURYMODE
+
     pi = player['index']
     player['w'] = IMAGES['player'][0].get_width()
     player['h'] = IMAGES['player'][0].get_height()
@@ -430,29 +607,52 @@ def checkCrash(player, upperPipes, lowerPipes):
     # if player crashes into ground
     if player['y'] + player['h'] >= BASEY - 1:
         return [True, True]
-    else:
 
+    else:
         playerRect = pygame.Rect(player['x'], player['y'],
                       player['w'], player['h'])
         pipeW = IMAGES['pipe'][0].get_width()
         pipeH = IMAGES['pipe'][0].get_height()
 
-        for uPipe, lPipe in zip(upperPipes, lowerPipes):
-            # upper and lower pipe rects
+        for uPipe in upperPipes:
+            # pipe rect
             uPipeRect = pygame.Rect(uPipe['x'], uPipe['y'], pipeW, pipeH)
-            lPipeRect = pygame.Rect(lPipe['x'], lPipe['y'], pipeW, pipeH)
 
-            # player and upper/lower pipe hitmasks
+            # player and pipe hitmasks
             pHitMask = HITMASKS['player'][pi]
             uHitmask = HITMASKS['pipe'][0]
-            lHitmask = HITMASKS['pipe'][1]
 
-            # if bird collided with upipe or lpipe
+            # if bird collided with pipe
             uCollide = pixelCollision(playerRect, uPipeRect, pHitMask, uHitmask)
+
+            if uCollide:
+                # for fury mode we want to break the pipe so we
+                # must return which pipe is colliding (lower or upper)
+                if FURYMODE:
+                    return [True, False, True, uPipe]
+                # normal mode
+                return [True, False]
+
+        for lPipe in lowerPipes:
+            # pipe rect
+            lPipeRect = pygame.Rect(lPipe['x'], lPipe['y'], pipeW, pipeH)
+
+            # player and pipe hitmasks
+            pHitMask = HITMASKS['player'][pi]
+            lHitmask = HITMASKS['pipe'][0]
+
+            # if bird collided with pipe
             lCollide = pixelCollision(playerRect, lPipeRect, pHitMask, lHitmask)
 
-            if uCollide or lCollide:
+            if lCollide:
+                # for fury mode we want to break the pipe so we
+                # must return which pipe is colliding (lower or upper)
+                if FURYMODE:
+                    return [True, False, False, lPipe]
+                # normal mode
                 return [True, False]
+
+
 
     return [False, False]
 
