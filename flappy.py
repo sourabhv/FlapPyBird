@@ -9,7 +9,6 @@ from pygame.locals import *
 FPS = 30
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
-# amount by which base can maximum shift to left
 PIPEGAPSIZE  = 100 # gap between upper and lower part of pipe
 BASEY        = SCREENHEIGHT * 0.79
 # image, sound and hitmask  dicts
@@ -25,7 +24,6 @@ PLAYERS_LIST = (
     ),
     # blue bird
     (
-        # amount by which base can maximum shift to left
         'assets/sprites/bluebird-upflap.png',
         'assets/sprites/bluebird-midflap.png',
         'assets/sprites/bluebird-downflap.png',
