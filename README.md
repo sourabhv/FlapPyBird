@@ -31,6 +31,14 @@ $ pipenv run python flappy.py
 
 (For x64 windows, get exe [here](http://www.lfd.uci.edu/~gohlke/pythonlibs/#pygame))
 
+Notable forks
+-------------
+
+- [FlappyBird Fury Mode](https://github.com/Cc618/FlapPyBird)
+
+Made something awesome from FlapPyBird? Add it to the list :)
+
+
 ScreenShot
 ----------
 
