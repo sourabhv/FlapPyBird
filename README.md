@@ -35,6 +35,7 @@ Notable forks
 -------------
 
 - [FlappyBird Fury Mode](https://github.com/Cc618/FlapPyBird)
+- [FlappyBird Model Predictive Control](https://github.com/philzook58/FlapPyBird-MPC)
 
 Made something awesome from FlapPyBird? Add it to the list :)
 
