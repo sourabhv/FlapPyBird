@@ -2,7 +2,7 @@ FlapPyBird
 ===============
 
 A Flappy Bird Clone made using [python-pygame][pygame]
-
+[![Run on Repl.it](https://repl.it/badge/github/sourabhv/FlapPyBird)](https://repl.it/github/sourabhv/FlapPyBird)
 How-to (as tested on MacOS)
 ---------------------------
 

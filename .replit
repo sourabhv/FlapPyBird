@@ -1,0 +1,2 @@
+language = "python3"
+run = "pipenv install ; pipenv run python flappy.py"
