@@ -47,10 +47,6 @@ PIPES_LIST = (
     'assets/sprites/pipe-red.png',
 )
 
-# list of effects
-EFFECTS_LIST = (
-    'assets/sprites/shield.png'
-)
 
 try:
     xrange
@@ -79,6 +75,8 @@ def main():
         pygame.image.load('assets/sprites/9.png').convert_alpha()
     )
 
+    # load shield effect sprite
+    IMAGES['shield'] = pygame.image.load('C:/Users/szkri/PycharmProjects/FlapPyBird/assets/sprites/shield.png').convert_alpha()
     # game over sprite
     IMAGES['gameover'] = pygame.image.load('assets/sprites/gameover.png').convert_alpha()
     # message sprite for welcome screen
@@ -119,8 +117,6 @@ def main():
             pygame.image.load(PIPES_LIST[pipeindex]).convert_alpha(),
         )
 
-        # load shield effect sprite
-        IMAGES['shield'] = pygame.image.load(EFFECTS_LIST[0]).convert_alpha()
 
         # hismask for pipes
         HITMASKS['pipe'] = (
@@ -229,12 +225,15 @@ def mainGame(movementInfo):
     playerRotThr = 20  # rotation threshold
     playerFlapAcc = -9  # players speed on flapping
     playerFlapped = False  # True when player flaps
+    playerShielded = False
 
     while True:
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
+            if event.type == KEYDOWN and (event.key == K_d):
+                playerShielded = True
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
                 if playery > -2 * IMAGES['player'][0].get_height():
                     playerVelY = playerFlapAcc
@@ -317,6 +316,9 @@ def mainGame(movementInfo):
         visibleRot = playerRotThr
         if playerRot <= playerRotThr:
             visibleRot = playerRot
+
+        if playerShielded:
+            SCREEN.blit(IMAGES['shield'], (playerx, playery))
 
         playerSurface = pygame.transform.rotate(IMAGES['player'][playerIndex], visibleRot)
         SCREEN.blit(playerSurface, (playerx, playery))
