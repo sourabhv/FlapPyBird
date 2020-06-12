@@ -13,6 +13,7 @@ BASEY = SCREENHEIGHT * 0.79
 # image, sound and hitmask  dicts
 IMAGES, SOUNDS, HITMASKS = {}, {}, {}
 
+SHIELD_UPTIME = 1000  # ms
 # list of all possible players (tuple of 3 positions of flap)
 PLAYERS_LIST = (
     # red bird
@@ -47,7 +48,6 @@ PIPES_LIST = (
     'assets/sprites/pipe-red.png',
 )
 
-
 try:
     xrange
 except NameError:
@@ -76,7 +76,8 @@ def main():
     )
 
     # load shield effect sprite
-    IMAGES['shield'] = pygame.image.load('C:/Users/szkri/PycharmProjects/FlapPyBird/assets/sprites/shield.png').convert_alpha()
+    IMAGES['shield'] = pygame.image.load(
+        'C:/Users/szkri/PycharmProjects/FlapPyBird/assets/sprites/shield.png').convert_alpha()
     # game over sprite
     IMAGES['gameover'] = pygame.image.load('assets/sprites/gameover.png').convert_alpha()
     # message sprite for welcome screen
@@ -116,7 +117,6 @@ def main():
                 pygame.image.load(PIPES_LIST[pipeindex]).convert_alpha(), False, True),
             pygame.image.load(PIPES_LIST[pipeindex]).convert_alpha(),
         )
-
 
         # hismask for pipes
         HITMASKS['pipe'] = (
@@ -226,6 +226,7 @@ def mainGame(movementInfo):
     playerFlapAcc = -9  # players speed on flapping
     playerFlapped = False  # True when player flaps
     playerShielded = False
+    pygame.time.set_timer(shield_event(), SHIELD_UPTIME)
 
     while True:
         for event in pygame.event.get():
@@ -234,6 +235,8 @@ def mainGame(movementInfo):
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_d):
                 playerShielded = True
+            if event.type == shield_event():
+                playerShielded = False
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
                 if playery > -2 * IMAGES['player'][0].get_height():
                     playerVelY = playerFlapAcc
@@ -325,6 +328,10 @@ def mainGame(movementInfo):
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
+
+
+def shield_event():
+    return True
 
 
 def showGameOverScreen(crashInfo):
