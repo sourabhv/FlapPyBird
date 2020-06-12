@@ -229,16 +229,19 @@ def mainGame(movementInfo):
     playerFlapAcc = -9  # players speed on flapping
     playerFlapped = False  # True when player flaps
     playerShielded = False
+    shieldLock = False
 
     while True:
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
-            if event.type == KEYDOWN and (event.key == K_d):
+            if event.type == KEYDOWN and (event.key == K_d and not shieldLock):
                 playerShielded = True
+                shieldLock = True
             if event.type == SHIELD_FADE:
                 playerShielded = False
+                shieldLock = False
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
                 if playery > -2 * IMAGES['player'][0].get_height():
                     playerVelY = playerFlapAcc
