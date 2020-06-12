@@ -48,8 +48,8 @@ PIPES_LIST = (
     'assets/sprites/pipe-red.png',
 )
 # Create a custom event for shield uptime
-SHIELD = pygame.USEREVENT + 1
-pygame.time.set_timer(SHIELD, SHIELD_UPTIME)
+SHIELD_FADE = pygame.USEREVENT + 1
+pygame.time.set_timer(SHIELD_FADE, SHIELD_UPTIME)
 
 try:
     xrange
@@ -237,7 +237,7 @@ def mainGame(movementInfo):
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_d):
                 playerShielded = True
-            if event.type == SHIELD:
+            if event.type == SHIELD_FADE:
                 playerShielded = False
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
                 if playery > -2 * IMAGES['player'][0].get_height():
