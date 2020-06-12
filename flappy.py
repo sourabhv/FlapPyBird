@@ -47,6 +47,9 @@ PIPES_LIST = (
     'assets/sprites/pipe-green.png',
     'assets/sprites/pipe-red.png',
 )
+# Create a custom event for shield uptime
+SHIELD = pygame.USEREVENT + 1
+pygame.time.set_timer(SHIELD, SHIELD_UPTIME)
 
 try:
     xrange
@@ -226,7 +229,6 @@ def mainGame(movementInfo):
     playerFlapAcc = -9  # players speed on flapping
     playerFlapped = False  # True when player flaps
     playerShielded = False
-    pygame.time.set_timer(shield_event(), SHIELD_UPTIME)
 
     while True:
         for event in pygame.event.get():
@@ -235,7 +237,7 @@ def mainGame(movementInfo):
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_d):
                 playerShielded = True
-            if event.type == shield_event():
+            if event.type == SHIELD:
                 playerShielded = False
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
                 if playery > -2 * IMAGES['player'][0].get_height():
@@ -329,10 +331,6 @@ def mainGame(movementInfo):
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
-
-
-def shield_event():
-    return True
 
 
 def showGameOverScreen(crashInfo):
