@@ -10,9 +10,9 @@ How-to (as tested on MacOS)
 
 2. Install [pipenv]
 
-2. Install PyGame 1.9.x from [here](http://www.pygame.org/download.shtml)
+3. Install PyGame 1.9.x from [here](http://www.pygame.org/download.shtml)
 
-3. Clone the repository:
+4. Clone the repository:
 
 ```bash
 $ git clone https://github.com/sourabhv/FlapPyBird
@@ -20,14 +20,14 @@ $ git clone https://github.com/sourabhv/FlapPyBird
 
 or download as zip and extract.
 
-4. In the root directory run
+5. In the root directory run
 
 ```bash
 $ pipenv install
 $ pipenv run python flappy.py
 ```
 
-5. Use <kbd>&uarr;</kbd> or <kbd>Space</kbd> key to play and <kbd>Esc</kbd> to close the game.
+6. Use <kbd>&uarr;</kbd> or <kbd>Space</kbd> key to play and <kbd>Esc</kbd> to close the game.
 
 (For x64 windows, get exe [here](http://www.lfd.uci.edu/~gohlke/pythonlibs/#pygame))
 
