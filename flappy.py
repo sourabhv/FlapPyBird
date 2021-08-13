@@ -1,10 +1,8 @@
 from itertools import cycle
 import random
 import sys
-
 import pygame
 from pygame.locals import *
-
 
 FPS = 30
 SCREENWIDTH  = 288
@@ -321,7 +319,7 @@ def mainGame(movementInfo):
 
 
 def showGameOverScreen(crashInfo):
-    """crashes the player down ans shows gameover image"""
+    """crashes the player down and shows gameover image"""
     score = crashInfo['score']
     playerx = SCREENWIDTH * 0.2
     playery = crashInfo['y']
