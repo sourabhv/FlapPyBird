@@ -44,10 +44,12 @@ Notable forks
 Made something awesome from FlapPyBird? Add it to the list :)
 
 
-ScreenShot
+Demo
 ----------
 
-![Flappy Bird](screenshot1.png)
+https://user-images.githubusercontent.com/2307626/130682424-9254b32d-efe0-406e-a6ea-3fb625a2df5e.mp4
+
+
 
 [pygame]: http://www.pygame.org
 [pipenv]: https://pipenv.readthedocs.io/en/latest/
