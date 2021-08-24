@@ -211,7 +211,8 @@ def mainGame(movementInfo):
         {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[1]['y']},
     ]
 
-    pipeVelX = -4
+    dt = FPSCLOCK.tick(FPS)/1000
+    pipeVelX = -128 * dt
 
     # player velocity, max velocity, downward acceleration, acceleration on flap
     playerVelY    =  -9   # player's velocity along Y, default same as playerFlapped
@@ -287,7 +288,7 @@ def mainGame(movementInfo):
             lPipe['x'] += pipeVelX
 
         # add new pipe when first pipe is about to touch left of screen
-        if len(upperPipes) > 0 and 0 < upperPipes[0]['x'] < 5:
+        if 3 > len(upperPipes) > 0 and 0 < upperPipes[0]['x'] < 5:
             newPipe = getRandomPipe()
             upperPipes.append(newPipe[0])
             lowerPipes.append(newPipe[1])
