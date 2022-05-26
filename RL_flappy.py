@@ -59,6 +59,27 @@ except NameError:
 FPSCLOCK = pygame.time.Clock()
 
 
+playerHeight = pygame.image.load(PLAYERS_LIST[0][0]).get_height()
+playerWidth = pygame.image.load(PLAYERS_LIST[0][0]).get_width()
+pipesHeight = pygame.image.load(PIPES_LIST[0]).get_height()
+pipesWidth = pygame.image.load(PIPES_LIST[0]).get_width()
+
+def getHitmask(image):
+    """returns a hitmask using an image's alpha."""
+    mask = []
+    for x in xrange(image.get_width()):
+        mask.append([])
+        for y in xrange(image.get_height()):
+            mask[x].append(bool(image.get_at((x, y))[3]))
+    return mask
+
+
+# player and upper/lower pipe hitmasks
+pHitMask = getHitmask(pygame.image.load(PLAYERS_LIST[0][0]))
+uHitmask = getHitmask(pygame.image.load(PIPES_LIST[0]))
+lHitmask = getHitmask(pygame.transform.flip(pygame.image.load(PIPES_LIST[0]), False, True))
+
+
 def main(QAgent=None, speed_up=False):
     global SCREEN
     pygame.init()
@@ -427,11 +448,11 @@ def getRandomPipe():
     # y of gap between upper and lower pipe
     gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
     gapY += int(BASEY * 0.2)
-    pipeHeight = pygame.image.load(PIPES_LIST[0]).get_height() # pipeHeight = IMAGES['pipe'][0].get_height()
+    # pipeHeight = pygame.image.load(PIPES_LIST[0]).get_height()  # pipeHeight = IMAGES['pipe'][0].get_height()
     pipeX = SCREENWIDTH + 10
 
     return [
-        {'x': pipeX, 'y': gapY - pipeHeight},   # upper pipe
+        {'x': pipeX, 'y': gapY - pipesHeight},   # upper pipe
         {'x': pipeX, 'y': gapY + PIPEGAPSIZE},  # lower pipe
     ]
 
@@ -453,9 +474,8 @@ def showScore(score):
 
 def checkCrash(player, upperPipes, lowerPipes):
     """returns True if player collides with base or pipes."""
-    pi = player['index']
-    player['w'] = pygame.image.load(PLAYERS_LIST[0][0]).get_width()
-    player['h'] = pygame.image.load(PLAYERS_LIST[0][0]).get_height()
+    player['w'] = playerWidth
+    player['h'] = playerHeight
 
     # if player crashes into ground
     if player['y'] + player['h'] >= BASEY - 1:
@@ -464,18 +484,13 @@ def checkCrash(player, upperPipes, lowerPipes):
 
         playerRect = pygame.Rect(player['x'], player['y'],
                                  player['w'], player['h'])
-        pipeW = pygame.image.load(PIPES_LIST[0]).get_width()
-        pipeH = pygame.image.load(PIPES_LIST[0]).get_height()
+        pipeW = pipesWidth
+        pipeH = pipesHeight
 
         for uPipe, lPipe in zip(upperPipes, lowerPipes):
             # upper and lower pipe rects
             uPipeRect = pygame.Rect(uPipe['x'], uPipe['y'], pipeW, pipeH)
             lPipeRect = pygame.Rect(lPipe['x'], lPipe['y'], pipeW, pipeH)
-
-            # player and upper/lower pipe hitmasks
-            pHitMask = getHitmask(pygame.image.load(PLAYERS_LIST[0][pi]))
-            uHitmask = getHitmask(pygame.image.load(PIPES_LIST[0]))
-            lHitmask = getHitmask(pygame.transform.flip(pygame.image.load(PIPES_LIST[0]), False, True))
 
             # if bird collided with upipe or lpipe
             uCollide = pixelCollision(playerRect, uPipeRect, pHitMask, uHitmask)
@@ -504,16 +519,6 @@ def pixelCollision(rect1, rect2, hitmask1, hitmask2):
     return False
 
 
-def getHitmask(image):
-    """returns a hitmask using an image's alpha."""
-    mask = []
-    for x in xrange(image.get_width()):
-        mask.append([])
-        for y in xrange(image.get_height()):
-            mask[x].append(bool(image.get_at((x, y))[3]))
-    return mask
-
-
 class Flappy_Environment:
     """Environment abstraction of the game. No gui not visuals, just the basics to train an agent.
 
@@ -528,18 +533,13 @@ class Flappy_Environment:
     The agent should process this state information to optimize the state space.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, step_reward, score_reward, die_reward) -> None:
+
+        self.step_reward = step_reward
+        self.score_reward = step_reward + score_reward
+        self.die_reward = die_reward
 
         self.action_space = ["flap", ""]
-
-        self.die_reward = -1
-        self.step_reward = +1
-        self.score_reward = +100
-
-        self.player_height = pygame.image.load(PLAYERS_LIST[0][0]).get_height()
-        self.player_width = pygame.image.load(PLAYERS_LIST[0][0]).get_width()
-        self.pipes_height = pygame.image.load(PIPES_LIST[0]).get_height()
-        self.pipes_width = pygame.image.load(PIPES_LIST[0]).get_width()
 
         return
 
@@ -553,11 +553,11 @@ class Flappy_Environment:
             "score": self.score
         }
 
-    def set_up(self):
+    def set_up(self) -> Dict:
         """Set up the environment with default values
         """
         self.score = self.playerIndex = 0
-
+        self.crashTest = [False, False]
         self.playerx, self.playery = int(SCREENWIDTH * 0.2), 308
 
         # get 2 new pipes to add to upperPipes lowerPipes list
@@ -584,7 +584,8 @@ class Flappy_Environment:
         self.playerAccY = 1         # players downward acceleration
         self.playerFlapAcc = -9     # players speed on flapping
         self.playerFlapped = False  # True when player flaps
-        return
+        
+        return self._return_state()
 
     def take_action(self, action) -> Tuple[int, Dict]:
         """Take an action and return the reward and new state of the environment
@@ -601,21 +602,21 @@ class Flappy_Environment:
             exit()
 
         if action == "flap":
-            if self.playery > -2 * self.player_height:
+            if self.playery > -2 * playerHeight:
                 self.playerVelY = self.playerFlapAcc
                 self.playerFlapped = True
 
         # check for crash here
-        self.crashTest = checkCrash({'x': self.playerx, 'y': self.playery, 'index': self.playerIndex},
-                                    self.upperPipes, self.lowerPipes)
+        self.crashTest = checkCrash(player={'x': self.playerx, 'y': self.playery},
+                                    upperPipes=self.upperPipes, lowerPipes=self.lowerPipes)
         if self.crashTest[0]:
             return self.die_reward, self._return_state()
 
         # check for score
         scored_point = False
-        playerMidPos = self.playerx + self.player_width / 2
+        playerMidPos = self.playerx + playerWidth / 2
         for pipe in self.upperPipes:
-            pipeMidPos = pipe['x'] + self.pipes_width / 2
+            pipeMidPos = pipe['x'] + pipesWidth / 2
             if pipeMidPos <= playerMidPos < pipeMidPos + 4:
                 self.score += 1
                 scored_point = True
@@ -626,7 +627,7 @@ class Flappy_Environment:
         if self.playerFlapped:
             self.playerFlapped = False
 
-        self.playery += min(self.playerVelY, BASEY - self.playery - self.player_height)
+        self.playery += min(self.playerVelY, BASEY - self.playery - playerHeight)
 
         # move pipes to left
         for uPipe, lPipe in zip(self.upperPipes, self.lowerPipes):
@@ -640,7 +641,7 @@ class Flappy_Environment:
             self.lowerPipes.append(newPipe[1])
 
         # remove first pipe if its out of the screen
-        if len(self.upperPipes) > 0 and self.upperPipes[0]['x'] < -self.pipes_width:
+        if len(self.upperPipes) > 0 and self.upperPipes[0]['x'] < -pipesWidth:
             self.upperPipes.pop(0)
             self.lowerPipes.pop(0)
 
