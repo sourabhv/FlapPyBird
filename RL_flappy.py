@@ -2,11 +2,12 @@ from itertools import cycle
 
 import random
 import sys
+from typing import Dict, Tuple
 
 import pygame
 from pygame.locals import *
 
-from flappy_RL import Flappy_QAgent
+from RL_agents import Flappy_QAgent
 
 FPS = 30
 SCREENWIDTH  = 288
@@ -511,6 +512,142 @@ def getHitmask(image):
         for y in xrange(image.get_height()):
             mask[x].append(bool(image.get_at((x, y))[3]))
     return mask
+
+
+class Flappy_Environment:
+    """Environment abstraction of the game. No gui not visuals, just the basics to train an agent.
+
+    The state is composed of a dict with all relevant information:
+    - playerPos : dict with {"x", "y"} position of the player
+    - playerVelY : int with the y velocity of the player
+    - upperPipes : list of dicts with {"x", "y"} position of the pipes
+    - lowerPipes : list of dicts with {"x", "y"} position of the pipes
+    - crashInfo : bool array with [crash, groundCrash]
+    - score
+
+    The agent should process this state information to optimize the state space.
+    """
+
+    def __init__(self) -> None:
+
+        self.action_space = ["flap", ""]
+
+        self.die_reward = -1
+        self.step_reward = +1
+        self.score_reward = +100
+
+        self.player_height = pygame.image.load(PLAYERS_LIST[0][0]).get_height()
+        self.player_width = pygame.image.load(PLAYERS_LIST[0][0]).get_width()
+        self.pipes_height = pygame.image.load(PIPES_LIST[0]).get_height()
+        self.pipes_width = pygame.image.load(PIPES_LIST[0]).get_width()
+
+        return
+
+    def _return_state(self):
+        return {
+            "playerPos": {"x": self.playerx, "y": self.playery},
+            "playerVelY": self.playerVelY,
+            "upperPipes": self.upperPipes,
+            "lowerPipes": self.lowerPipes,
+            "crashInfo": self.crashTest,
+            "score": self.score
+        }
+
+    def set_up(self):
+        """Set up the environment with default values
+        """
+        self.score = self.playerIndex = 0
+
+        self.playerx, self.playery = int(SCREENWIDTH * 0.2), 308
+
+        # get 2 new pipes to add to upperPipes lowerPipes list
+        newPipe1 = getRandomPipe()
+        newPipe2 = getRandomPipe()
+
+        # list of upper pipes
+        self.upperPipes = [
+            {'x': SCREENWIDTH + 200, 'y': newPipe1[0]['y']},
+            {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[0]['y']},
+        ]
+
+        # list of lower pipes
+        self.lowerPipes = [
+            {'x': SCREENWIDTH + 200, 'y': newPipe1[1]['y']},
+            {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[1]['y']},
+        ]
+
+        self.pipeVelX = -8  # NOTE: adjust
+
+        # player velocity, max velocity, downward acceleration, acceleration on flap
+        self.playerVelY = -9        # player's velocity along Y, default same as playerFlapped
+        self.playerMaxVelY = 10     # max vel along Y, max descend speed
+        self.playerAccY = 1         # players downward acceleration
+        self.playerFlapAcc = -9     # players speed on flapping
+        self.playerFlapped = False  # True when player flaps
+        return
+
+    def take_action(self, action) -> Tuple[int, Dict]:
+        """Take an action and return the reward and new state of the environment
+
+        Args:
+            action (_type_): action to take
+
+        Returns:
+            Tuple[int, Dict]: reward and new state. See class docstring for definiton of state.
+        """
+
+        if action not in self.action_space:
+            print(f"ERROR: Passed action ({action}) not in action space {self.action_space}. Please ensure action is valid.")
+            exit()
+
+        if action == "flap":
+            if self.playery > -2 * self.player_height:
+                self.playerVelY = self.playerFlapAcc
+                self.playerFlapped = True
+
+        # check for crash here
+        self.crashTest = checkCrash({'x': self.playerx, 'y': self.playery, 'index': self.playerIndex},
+                                    self.upperPipes, self.lowerPipes)
+        if self.crashTest[0]:
+            return self.die_reward, self._return_state()
+
+        # check for score
+        scored_point = False
+        playerMidPos = self.playerx + self.player_width / 2
+        for pipe in self.upperPipes:
+            pipeMidPos = pipe['x'] + self.pipes_width / 2
+            if pipeMidPos <= playerMidPos < pipeMidPos + 4:
+                self.score += 1
+                scored_point = True
+
+        # player's movement
+        if self.playerVelY < self.playerMaxVelY and not self.playerFlapped:
+            self.playerVelY += self.playerAccY
+        if self.playerFlapped:
+            self.playerFlapped = False
+
+        self.playery += min(self.playerVelY, BASEY - self.playery - self.player_height)
+
+        # move pipes to left
+        for uPipe, lPipe in zip(self.upperPipes, self.lowerPipes):
+            uPipe['x'] += self.pipeVelX
+            lPipe['x'] += self.pipeVelX
+
+        # add new pipe when first pipe is about to touch left of screen
+        if 3 > len(self.upperPipes) and -50 < self.upperPipes[0]['x'] < 5:
+            newPipe = getRandomPipe()
+            self.upperPipes.append(newPipe[0])
+            self.lowerPipes.append(newPipe[1])
+
+        # remove first pipe if its out of the screen
+        if len(self.upperPipes) > 0 and self.upperPipes[0]['x'] < -self.pipes_width:
+            self.upperPipes.pop(0)
+            self.lowerPipes.pop(0)
+
+        if scored_point:
+            return self.score_reward, self._return_state()
+        else:
+            return self.step_reward, self._return_state()
 
 
 if __name__ == '__main__':
