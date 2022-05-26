@@ -576,7 +576,7 @@ class Flappy_Environment:
             {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[1]['y']},
         ]
 
-        self.pipeVelX = -8  # NOTE: adjust
+        self.pipeVelX = -4  # NOTE: adjust
 
         # player velocity, max velocity, downward acceleration, acceleration on flap
         self.playerVelY = -9        # player's velocity along Y, default same as playerFlapped
@@ -584,7 +584,7 @@ class Flappy_Environment:
         self.playerAccY = 1         # players downward acceleration
         self.playerFlapAcc = -9     # players speed on flapping
         self.playerFlapped = False  # True when player flaps
-        
+
         return self._return_state()
 
     def take_action(self, action) -> Tuple[int, Dict]:
