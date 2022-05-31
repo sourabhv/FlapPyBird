@@ -58,11 +58,11 @@ except NameError:
 
 FPSCLOCK = pygame.time.Clock()
 
-
 playerHeight = pygame.image.load(PLAYERS_LIST[0][0]).get_height()
 playerWidth = pygame.image.load(PLAYERS_LIST[0][0]).get_width()
 pipesHeight = pygame.image.load(PIPES_LIST[0]).get_height()
 pipesWidth = pygame.image.load(PIPES_LIST[0]).get_width()
+
 
 def getHitmask(image):
     """returns a hitmask using an image's alpha."""
@@ -237,7 +237,7 @@ def mainGame(movementInfo, QAgent: Flappy_QAgent = None, gui: bool = True, speed
     ]
 
     if speed_up:
-        pipeVelX = -8
+        pipeVelX = -4
     else:
         dt = FPSCLOCK.tick(FPS) / 1000
         pipeVelX = -128 * dt
@@ -254,7 +254,7 @@ def mainGame(movementInfo, QAgent: Flappy_QAgent = None, gui: bool = True, speed
     playerFlapped = False  # True when player flaps
 
     if QAgent:
-        QAgent.update_state(player_pos=[playerx, playery],
+        QAgent.update_state(player_pos={"x": playerx, "y": playery},
                             player_vel=playerVelY,
                             lower_pipes=lowerPipes)
 
@@ -267,6 +267,10 @@ def mainGame(movementInfo, QAgent: Flappy_QAgent = None, gui: bool = True, speed
                     playerFlapped = True
                     if gui:
                         SOUNDS['wing'].play()
+
+            QAgent.update_state(player_pos={"x": playerx, "y": playery},
+                                player_vel=playerVelY,
+                                lower_pipes=lowerPipes)
         else:
             for event in pygame.event.get():
                 if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
@@ -277,6 +281,8 @@ def mainGame(movementInfo, QAgent: Flappy_QAgent = None, gui: bool = True, speed
                         playerVelY = playerFlapAcc
                         playerFlapped = True
                         SOUNDS['wing'].play()
+
+        # print(f"player (x, y) to pipe: ({playerx - lowerPipes[0]['x']}, {playery - lowerPipes[0]['y']}), pipes x {[pipe['x'] for pipe in lowerPipes]}")
 
         # check for crash here
         crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex},

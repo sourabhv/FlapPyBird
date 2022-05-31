@@ -1,7 +1,7 @@
 import pickle
 from datetime import datetime
 
-from RL_flappy import Flappy_Environment
+import RL_flappy
 from RL_agents import Flappy_QAgent
 
 AGENT_BACKUP_FNAME = "flappy_agent_backup.dat"
@@ -23,14 +23,16 @@ def train(n_episodes):
             flappy_agent: Flappy_QAgent = pickle.load(f)
 
         print(f"""Recovered agent from {AGENT_BACKUP_FNAME}\n""" +
-              f"""Agent knows {len(flappy_agent._Q_states_list)} states and is {flappy_agent.epsisode_age} episodes old.""" +
+              f"""Agent knows {len(flappy_agent._Q_table)} states and is {flappy_agent.epsisode_age} episodes old.""" +
               f"""{flappy_agent._Q_table}""")
+
     except:
         print("""Starting with a new fresh agent...""")
 
-        flappy_agent = Flappy_QAgent(alpha=0.1, gamma=1, epsilon=0.1)
+        flappy_agent = Flappy_QAgent(alpha_start=0.1, alpha_end=0.1, alpha_decay_episodes=20000,
+                                     gamma=1, epsilon=0.0)
 
-    flappy_env = Flappy_Environment(step_reward=+1, score_reward=0, die_reward=-10000)
+    flappy_env = RL_flappy.Flappy_Environment(step_reward=0, score_reward=100, die_reward=-1000)
 
     for episode in range(1, n_episodes):
 
@@ -62,14 +64,34 @@ def train(n_episodes):
 
             # save agent to pickle file
             print(f"""Saving agent to {AGENT_BACKUP_FNAME} file.\n""" +
-                  f"""Agent knows {len(flappy_agent._Q_states_list)} states and is {flappy_agent.epsisode_age} episodes old.""")
+                  f"""Agent knows {len(flappy_agent._Q_table)} states and is {flappy_agent.epsisode_age} episodes old.""")
             with open(AGENT_BACKUP_FNAME, "wb") as f:
                 pickle.dump(flappy_agent, f)
 
 
-def play():
-    pass
+def play(autoplay=False):
+
+    if autoplay:
+        try:
+            with open(AGENT_BACKUP_FNAME, "rb") as f:
+                flappy_agent: Flappy_QAgent = pickle.load(f)
+
+            print(f"""Recovered agent from {AGENT_BACKUP_FNAME}\n""" +
+                  f"""Agent knows {len(flappy_agent._Q_table)} states and is {flappy_agent.epsisode_age} episodes old.""" +
+                  f"""{flappy_agent._Q_table}""")
+
+        except:
+            print("""Starting with a new fresh agent...""")
+
+            flappy_agent = Flappy_QAgent(alpha_start=0.1, alpha_end=0.1, alpha_decay_episodes=20000,
+                                         gamma=1, epsilon=0.0)
+    else:
+        flappy_agent = None
+
+    RL_flappy.main(QAgent=flappy_agent)
 
 
 if __name__ == '__main__':
+
     train(n_episodes=30000)
+    # play(autoplay=True)
