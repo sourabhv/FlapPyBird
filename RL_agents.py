@@ -43,8 +43,8 @@ class Flappy_QAgent:
 
         x_dist_to_first = int(player_pos["x"] - lower_pipes[0]["x"])
 
-        next_pipe = 1 if (x_dist_to_first > 65) else 0
-        after_next_pipe = min(next_pipe + 1, len(lower_pipes))
+        next_pipe = 1 if (x_dist_to_first > 80) else 0
+        after_next_pipe = min(next_pipe + 1, len(lower_pipes) - 1)
 
         x_dist_to_next = int(player_pos["x"] - lower_pipes[next_pipe]["x"])
         y_dist_to_next = int(player_pos["y"] - lower_pipes[next_pipe]["y"])
@@ -54,23 +54,23 @@ class Flappy_QAgent:
             y_dist_to_after_next = int(player_pos["y"] - lower_pipes[after_next_pipe]["y"])
 
         # reduce the state space by reducing the distance to multiples
-        if x_dist_to_next < -65:
-            x_dist_to_next = -65
+        if x_dist_to_next < -85:
+            x_dist_to_next = -85
         elif x_dist_to_next < -30:
-            x_dist_to_next = int(x_dist_to_next - x_dist_to_next % 10)
+            x_dist_to_next = int(x_dist_to_next - x_dist_to_next % 15)
         else:
             x_dist_to_next = int(x_dist_to_next - x_dist_to_next % 5)
 
         if y_dist_to_next < -150:
             y_dist_to_next = -150
         elif y_dist_to_next < 50:
-            y_dist_to_next = int(y_dist_to_next - y_dist_to_next % 10)
+            y_dist_to_next = int(y_dist_to_next - y_dist_to_next % 20)
         else:
             y_dist_to_next = 50
 
-        if y_dist_to_after_next < -300:
-            y_dist_to_after_next = -300
-        elif y_dist_to_after_next < 200:
+        if y_dist_to_after_next < -400:
+            y_dist_to_after_next = -400
+        elif y_dist_to_after_next < 400:
             y_dist_to_after_next = int(y_dist_to_after_next - y_dist_to_after_next % 20)
         else:
             y_dist_to_after_next = 1000

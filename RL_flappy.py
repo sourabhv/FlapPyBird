@@ -80,7 +80,7 @@ uHitmask = getHitmask(pygame.image.load(PIPES_LIST[0]))
 lHitmask = getHitmask(pygame.transform.flip(pygame.image.load(PIPES_LIST[0]), False, True))
 
 
-def main(QAgent=None, speed_up=False):
+def main(QAgent=None):
     global SCREEN
     pygame.init()
 
@@ -155,7 +155,7 @@ def main(QAgent=None, speed_up=False):
         )
 
         movementInfo = showWelcomeAnimation()
-        crashInfo = mainGame(movementInfo, QAgent=QAgent, speed_up=speed_up)
+        crashInfo = mainGame(movementInfo, QAgent=QAgent)
         showGameOverScreen(crashInfo)
 
 
@@ -212,9 +212,9 @@ def showWelcomeAnimation():
         FPSCLOCK.tick(FPS)
 
 
-def mainGame(movementInfo, QAgent: Flappy_QAgent = None, gui: bool = True, speed_up: bool = False):
-    score = playerIndex = loopIter = 0
-    playerIndexGen = movementInfo['playerIndexGen']
+def mainGame(movementInfo, QAgent: Flappy_QAgent = None, gui: bool = True):
+    score = playerIndex = 0  # loopIter = 0
+    # playerIndexGen = movementInfo['playerIndexGen']
     playerx, playery = int(SCREENWIDTH * 0.2), movementInfo['playery']
 
     basex = movementInfo['basex']
@@ -236,20 +236,12 @@ def mainGame(movementInfo, QAgent: Flappy_QAgent = None, gui: bool = True, speed
         {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[1]['y']},
     ]
 
-    if speed_up:
-        pipeVelX = -4
-    else:
-        dt = FPSCLOCK.tick(FPS) / 1000
-        pipeVelX = -128 * dt
+    pipeVelX = -4
 
     # player velocity, max velocity, downward acceleration, acceleration on flap
     playerVelY = -9        # player's velocity along Y, default same as playerFlapped
     playerMaxVelY = 10     # max vel along Y, max descend speed
-    # playerMinVelY = -8     # min vel along Y, max ascend speed
     playerAccY = 1         # players downward acceleration
-    playerRot = 45         # player's rotation
-    playerVelRot = 3       # angular speed
-    playerRotThr = 20      # rotation threshold
     playerFlapAcc = -9     # players speed on flapping
     playerFlapped = False  # True when player flaps
 
@@ -285,8 +277,8 @@ def mainGame(movementInfo, QAgent: Flappy_QAgent = None, gui: bool = True, speed
         # print(f"player (x, y) to pipe: ({playerx - lowerPipes[0]['x']}, {playery - lowerPipes[0]['y']}), pipes x {[pipe['x'] for pipe in lowerPipes]}")
 
         # check for crash here
-        crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex},
-                               upperPipes, lowerPipes)
+        crashTest = checkCrash(player={'x': playerx, 'y': playery},
+                               upperPipes=upperPipes, lowerPipes=lowerPipes)
         if crashTest[0]:
             return {
                 'y': playery,
@@ -297,14 +289,8 @@ def mainGame(movementInfo, QAgent: Flappy_QAgent = None, gui: bool = True, speed
                 'lowerPipes': lowerPipes,
                 'score': score,
                 'playerVelY': playerVelY,
-                'playerRot': playerRot
+                'playerRot': 0
             }
-        elif QAgent:
-            QAgent.update_state(player_pos=[playerx, playery],
-                                player_vel=playerVelY,
-                                lower_pipes=lowerPipes)
-
-            QAgent.update_Q(reward=QAgent.step_reward)
 
         # check for score
         playerMidPos = playerx + pygame.image.load(PLAYERS_LIST[0][0]).get_width() / 2
@@ -316,14 +302,14 @@ def mainGame(movementInfo, QAgent: Flappy_QAgent = None, gui: bool = True, speed
                     SOUNDS['point'].play()
 
         # playerIndex basex change
-        if (loopIter + 1) % 3 == 0:
-            playerIndex = next(playerIndexGen)
-        loopIter = (loopIter + 1) % 30
+        # if (loopIter + 1) % 3 == 0:
+        #     playerIndex = next(playerIndexGen)
+        # loopIter = (loopIter + 1) % 30
         basex = -((-basex + 100) % baseShift)
 
         # rotate the player
-        if playerRot > -90:
-            playerRot -= playerVelRot
+        # if playerRot > -90:
+        #     playerRot -= playerVelRot
 
         # player's movement
         if playerVelY < playerMaxVelY and not playerFlapped:
@@ -331,7 +317,7 @@ def mainGame(movementInfo, QAgent: Flappy_QAgent = None, gui: bool = True, speed
         if playerFlapped:
             playerFlapped = False
             # more rotation to cover the threshold (calculated in visible rotation)
-            playerRot = 45
+            # playerRot = 45
 
         playerHeight = pygame.image.load(PLAYERS_LIST[0][0]).get_height()
         playery += min(playerVelY, BASEY - playery - playerHeight)
@@ -366,12 +352,7 @@ def mainGame(movementInfo, QAgent: Flappy_QAgent = None, gui: bool = True, speed
             # print score so player overlaps the score
             showScore(score)
 
-            # Player rotation has a threshold
-            visibleRot = playerRotThr
-            if playerRot <= playerRotThr:
-                visibleRot = playerRot
-
-            playerSurface = pygame.transform.rotate(IMAGES['player'][playerIndex], visibleRot)
+            playerSurface = IMAGES['player'][playerIndex]
             SCREEN.blit(playerSurface, (playerx, playery))
 
             pygame.display.update()
@@ -544,6 +525,9 @@ class Flappy_Environment:
         self.step_reward = step_reward
         self.score_reward = step_reward + score_reward
         self.die_reward = die_reward
+
+        print(f"Flappy_Environment initated with size ({SCREENWIDTH}x{SCREENHEIGHT}) and gap size {PIPEGAPSIZE}\n" +
+              f"Player has size ({playerWidth}x{playerHeight}) and the pipes are {pipesWidth} wide.")
 
         self.action_space = ["flap", ""]
 
