@@ -3,6 +3,7 @@ import random
 import sys
 import pygame
 from pygame.locals import *
+import asyncio
 
 FPS = 30
 SCREENWIDTH  = 288
@@ -53,7 +54,7 @@ except NameError:
     xrange = range
 
 
-def main():
+async def main():
     global SCREEN, FPSCLOCK
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
@@ -127,12 +128,12 @@ def main():
             getHitmask(IMAGES['player'][2]),
         )
 
-        movementInfo = showWelcomeAnimation()
-        crashInfo = mainGame(movementInfo)
-        showGameOverScreen(crashInfo)
+        movementInfo = await showWelcomeAnimation()
+        crashInfo = await mainGame(movementInfo)
+        await showGameOverScreen(crashInfo)
 
 
-def showWelcomeAnimation():
+async def showWelcomeAnimation():
     """Shows welcome screen animation of flappy bird"""
     # index of player to blit on screen
     playerIndex = 0
@@ -158,7 +159,7 @@ def showWelcomeAnimation():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
-            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+            if tap(event):
                 # make first flap sound and return values for mainGame
                 SOUNDS['wing'].play()
                 return {
@@ -182,10 +183,11 @@ def showWelcomeAnimation():
         SCREEN.blit(IMAGES['base'], (basex, BASEY))
 
         pygame.display.update()
+        await asyncio.sleep(0)
         FPSCLOCK.tick(FPS)
 
 
-def mainGame(movementInfo):
+async def mainGame(movementInfo):
     score = playerIndex = loopIter = 0
     playerIndexGen = movementInfo['playerIndexGen']
     playerx, playery = int(SCREENWIDTH * 0.2), movementInfo['playery']
@@ -229,7 +231,7 @@ def mainGame(movementInfo):
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
-            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+            if tap(event):
                 if playery > -2 * IMAGES['player'][0].get_height():
                     playerVelY = playerFlapAcc
                     playerFlapped = True
@@ -316,10 +318,11 @@ def mainGame(movementInfo):
         SCREEN.blit(playerSurface, (playerx, playery))
 
         pygame.display.update()
+        await asyncio.sleep(0)
         FPSCLOCK.tick(FPS)
 
 
-def showGameOverScreen(crashInfo):
+async def showGameOverScreen(crashInfo):
     """crashes the player down and shows gameover image"""
     score = crashInfo['score']
     playerx = SCREENWIDTH * 0.2
@@ -344,7 +347,7 @@ def showGameOverScreen(crashInfo):
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
-            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+            if tap(event):
                 if playery + playerHeight >= BASEY - 1:
                     return
 
@@ -380,6 +383,7 @@ def showGameOverScreen(crashInfo):
 
         FPSCLOCK.tick(FPS)
         pygame.display.update()
+        await asyncio.sleep(0)
 
 
 def playerShm(playerShm):
@@ -482,5 +486,9 @@ def getHitmask(image):
             mask[x].append(bool(image.get_at((x,y))[3]))
     return mask
 
+def tap(event):
+    left, _, _ = pygame.mouse.get_pressed()
+    return left or (event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP))
+
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
