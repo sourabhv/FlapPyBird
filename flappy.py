@@ -510,9 +510,11 @@ def getHitmask(image):
 
 def tap(event):
     left, _, _ = pygame.mouse.get_pressed()
-    return left or (
-        event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP)
+    space_or_up = event.type == KEYDOWN and (
+        event.key == K_SPACE or event.key == K_UP
     )
+    screen_tap = event.type == pygame.FINGERDOWN
+    return left or space_or_up or screen_tap
 
 
 if __name__ == "__main__":
