@@ -7,6 +7,9 @@ run:
 web:
 	pygbag flappy.py
 
+web-build:
+	pygbag --build flappy.py
+
 init:
 	@pip install -U pip; \
 	pip install -e ".[dev]"; \
