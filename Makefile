@@ -2,13 +2,13 @@ default:
 	@make run
 
 run:
-	python flappy.py
+	python main.py
 
 web:
-	pygbag flappy.py
+	pygbag main.py
 
 web-build:
-	pygbag --build flappy.py
+	pygbag --build main.py
 
 init:
 	@pip install -U pip; \
