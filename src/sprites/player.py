@@ -54,7 +54,7 @@ class Player(Sprite):
         self.min_vel_y = -8  # min vel along Y, max ascend speed
         self.acc_y = 1  # players downward acceleration
 
-        self.rot = 45  # player's current rotation
+        self.rot = 80  # player's current rotation
         self.vel_rot = -3  # player's rotation speed
         self.rot_min = -90  # player's min rotation angle
         self.rot_max = 20  # player's max rotation angle
@@ -80,6 +80,7 @@ class Player(Sprite):
         self.acc_y = 2
         self.vel_y = 7
         self.max_vel_y = 15
+        self.vel_rot = -8
 
     def update_img_idx(self):
         self.frame += 1
@@ -108,19 +109,20 @@ class Player(Sprite):
         self.mid_x = self.x + self.width / 2
         self.mid_y = self.y + self.height / 2
 
+        self.rotate()
+
     def tick_crash(self) -> None:
         if self.y + self.height < self.window.play_area_height - 1:
             self.y += min(
                 self.vel_y, self.window.play_area_height - self.y - self.height
             )
+            # rotate only when it's a pipe crash and bird is still falling
+            if self.crash_entity != "floor":
+                self.rotate()
 
         # player velocity change
         if self.vel_y < self.max_vel_y:
             self.vel_y += self.acc_y
-
-        # rotate only when it's a pipe crash
-        if self.crash_entity != "floor":
-            self.rotate()
 
     def rotate(self) -> None:
         self.rot = clamp(self.rot + self.vel_rot, self.rot_min, self.rot_max)
@@ -131,7 +133,6 @@ class Player(Sprite):
             self.tick_shm()
         elif self.mode == PlayerMode.NORMAL:
             self.tick_normal()
-            self.rotate()
         elif self.mode == PlayerMode.CRASH:
             self.tick_crash()
 
@@ -146,7 +147,7 @@ class Player(Sprite):
     def flap(self) -> None:
         self.vel_y = self.flap_acc
         self.flapped = True
-        self.rot = 45
+        self.rot = 80
         self.sounds.wing.play()
 
     def crossed(self, pipe: Pipe) -> bool:

@@ -94,18 +94,19 @@ class Flappy:
         self.player.set_mode(PlayerMode.NORMAL)
 
         while True:
-            for event in pygame.event.get():
-                self.check_quit_event(event)
-                if self.is_tap_event(event):
-                    if self.player.y > -2 * self.images.player[0].get_height():
-                        self.player.flap()
+
+            if self.player.collided(self.pipes, self.floor):
+                return
 
             for pipe in self.pipes.upper:
                 if self.player.crossed(pipe):
                     self.score.add()
 
-            if self.player.collided(self.pipes, self.floor):
-                return
+            for event in pygame.event.get():
+                self.check_quit_event(event)
+                if self.is_tap_event(event):
+                    if self.player.y > -2 * self.images.player[0].get_height():
+                        self.player.flap()
 
             # draw sprites
             self.background.tick()
