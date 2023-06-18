@@ -23,3 +23,8 @@ def pixel_collision(
             if hitmask1[x1 + x][y1 + y] and hitmask2[x2 + x][y2 + y]:
                 return True
     return False
+
+
+def clamp(n: float, minn: float, maxn: float) -> float:
+    """Clamps a number between two values"""
+    return max(min(maxn, n), minn)
