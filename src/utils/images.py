@@ -9,7 +9,7 @@ from .constants import BACKGROUNDS, PIPES, PLAYERS
 class Images:
     numbers: List[pygame.Surface]
     game_over: pygame.Surface
-    message: pygame.Surface
+    welcome_message: pygame.Surface
     base: pygame.Surface
     background: pygame.Surface
     player: Tuple[pygame.Surface]
@@ -27,8 +27,8 @@ class Images:
         self.game_over = pygame.image.load(
             "assets/sprites/gameover.png"
         ).convert_alpha()
-        # message sprite for welcome screen
-        self.message = pygame.image.load(
+        # welcome_message sprite for welcome screen
+        self.welcome_message = pygame.image.load(
             "assets/sprites/message.png"
         ).convert_alpha()
         # base (ground) sprite
