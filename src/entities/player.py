@@ -38,6 +38,7 @@ class Player(Entity):
         elif mode == PlayerMode.SHM:
             self.reset_vals_shm()
         elif mode == PlayerMode.CRASH:
+            self.stop_wings()
             self.config.sounds.hit.play()
             if self.crash_entity == "pipe":
                 self.config.sounds.die.play()
@@ -129,6 +130,9 @@ class Player(Entity):
         rotated_image = pygame.transform.rotate(self.image, self.rot)
         rotated_rect = rotated_image.get_rect(center=self.rect.center)
         self.config.screen.blit(rotated_image, rotated_rect)
+
+    def stop_wings(self) -> None:
+        self.img_gen = cycle([self.img_idx])
 
     def flap(self) -> None:
         if self.y > self.min_y:
