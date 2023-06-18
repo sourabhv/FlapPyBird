@@ -1,6 +1,43 @@
+from functools import wraps
+from typing import List
+
 import pygame
 
-from .hit_mask import HitMaskType
+HitMaskType = List[List[bool]]
+
+
+def clamp(n: float, minn: float, maxn: float) -> float:
+    """Clamps a number between two values"""
+    return max(min(maxn, n), minn)
+
+
+def memoize(func):
+    cache = {}
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        key = (args, frozenset(kwargs.items()))
+        if key not in cache:
+            cache[key] = func(*args, **kwargs)
+        return cache[key]
+
+    return wrapper
+
+
+@memoize
+def get_hit_mask(image: pygame.Surface) -> HitMaskType:
+    """returns a hit mask using an image's alpha."""
+    return list(
+        (
+            list(
+                (
+                    bool(image.get_at((x, y))[3])
+                    for y in range(image.get_height())
+                )
+            )
+            for x in range(image.get_width())
+        )
+    )
 
 
 def pixel_collision(
@@ -23,8 +60,3 @@ def pixel_collision(
             if hitmask1[x1 + x][y1 + y] and hitmask2[x2 + x][y2 + y]:
                 return True
     return False
-
-
-def clamp(n: float, minn: float, maxn: float) -> float:
-    """Clamps a number between two values"""
-    return max(min(maxn, n), minn)

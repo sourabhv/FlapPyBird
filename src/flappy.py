@@ -4,7 +4,7 @@ import sys
 import pygame
 from pygame.locals import K_ESCAPE, K_SPACE, K_UP, KEYDOWN, QUIT
 
-from .sprites import (
+from .entities import (
     Background,
     Floor,
     GameOver,
@@ -14,42 +14,35 @@ from .sprites import (
     Score,
     WelcomeMessage,
 )
-from .utils import HitMask, Images, Sounds, Window
+from .utils import GameConfig, Images, Sounds, Window
 
 
 class Flappy:
     def __init__(self):
         pygame.init()
         pygame.display.set_caption("Flappy Bird")
-        self.window = Window(288, 512)
-        self.fps = 30
-        self.clock = pygame.time.Clock()
-        self.screen = pygame.display.set_mode(
-            (self.window.width, self.window.height)
-        )
-        self.images = Images()
-        self.sounds = Sounds()
-        self.hit_mask = HitMask(self.images)
+        window = Window(288, 512)
+        screen = pygame.display.set_mode((window.width, window.height))
+        images = Images()
 
-        self.sprite_args = (
-            self.screen,
-            self.clock,
-            self.fps,
-            self.window,
-            self.images,
-            self.sounds,
-            self.hit_mask,
+        self.config = GameConfig(
+            screen=screen,
+            clock=pygame.time.Clock(),
+            fps=30,
+            window=window,
+            images=images,
+            sounds=Sounds(),
         )
 
     async def start(self):
         while True:
-            self.background = Background(*self.sprite_args)
-            self.floor = Floor(*self.sprite_args)
-            self.player = Player(*self.sprite_args)
-            self.welcome_message = WelcomeMessage(*self.sprite_args)
-            self.game_over_message = GameOver(*self.sprite_args)
-            self.pipes = Pipes(*self.sprite_args)
-            self.score = Score(*self.sprite_args)
+            self.background = Background(self.config)
+            self.floor = Floor(self.config)
+            self.player = Player(self.config)
+            self.welcome_message = WelcomeMessage(self.config)
+            self.game_over_message = GameOver(self.config)
+            self.pipes = Pipes(self.config)
+            self.score = Score(self.config)
             await self.splash()
             await self.play()
             await self.game_over()
@@ -72,7 +65,7 @@ class Flappy:
 
             pygame.display.update()
             await asyncio.sleep(0)
-            self.clock.tick(self.fps)
+            self.config.tick()
 
     def check_quit_event(self, event):
         if event.type == QUIT or (
@@ -94,21 +87,18 @@ class Flappy:
         self.player.set_mode(PlayerMode.NORMAL)
 
         while True:
-
             if self.player.collided(self.pipes, self.floor):
                 return
 
-            for pipe in self.pipes.upper:
+            for i, pipe in enumerate(self.pipes.upper):
                 if self.player.crossed(pipe):
                     self.score.add()
 
             for event in pygame.event.get():
                 self.check_quit_event(event)
                 if self.is_tap_event(event):
-                    if self.player.y > -2 * self.images.player[0].get_height():
-                        self.player.flap()
+                    self.player.flap()
 
-            # draw sprites
             self.background.tick()
             self.floor.tick()
             self.pipes.tick()
@@ -117,7 +107,7 @@ class Flappy:
 
             pygame.display.update()
             await asyncio.sleep(0)
-            self.clock.tick(self.fps)
+            self.config.tick()
 
     async def game_over(self):
         """crashes the player down and shows gameover image"""
@@ -130,18 +120,16 @@ class Flappy:
             for event in pygame.event.get():
                 self.check_quit_event(event)
                 if self.is_tap_event(event):
-                    if self.player.y + self.player.height >= self.floor.y - 1:
+                    if self.player.y + self.player.h >= self.floor.y - 1:
                         return
 
-            # draw sprites
             self.background.tick()
             self.floor.tick()
             self.pipes.tick()
             self.score.tick()
             self.player.tick()
             self.game_over_message.tick()
-            # self.screen.blit(self.images.gameover, (50, 180))
 
-            self.clock.tick(self.fps)
+            self.config.tick()
             pygame.display.update()
             await asyncio.sleep(0)

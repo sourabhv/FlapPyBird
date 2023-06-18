@@ -1,12 +1,5 @@
-from .hit_mask import HitMask
+from .game_config import GameConfig
 from .images import Images
 from .sounds import Sounds
-from .utils import clamp, pixel_collision
+from .utils import clamp, get_hit_mask, pixel_collision
 from .window import Window
-
-__all__ = [
-    "HitMask",
-    "Images",
-    "Sounds",
-    "Window",
-]
