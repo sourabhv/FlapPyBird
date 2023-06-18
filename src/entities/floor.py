@@ -4,14 +4,9 @@ from .entity import Entity
 
 class Floor(Entity):
     def __init__(self, config: GameConfig) -> None:
-        super().__init__(
-            config, config.images.base, 0, config.window.viewport_height
-        )
+        super().__init__(config, config.images.base, 0, config.window.vh)
         self.vel_x = 4
-        self.x_extra = (
-            config.images.base.get_width()
-            - config.images.background.get_width()
-        )
+        self.x_extra = self.w - config.window.w
 
     def stop(self) -> None:
         self.vel_x = 0
