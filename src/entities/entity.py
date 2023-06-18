@@ -54,21 +54,17 @@ class Entity:
 
     def tick(self) -> None:
         self.draw()
+        rect = self.rect
         if self.config.debug:
-            pygame.draw.rect(
-                self.config.screen,
-                (255, 0, 0),
-                self.rect,
-                1,
-            )
+            pygame.draw.rect(self.config.screen, (255, 0, 0), rect, 1)
             # write x and y at top of rect
             font = pygame.font.SysFont("Arial", 13, True)
             text = font.render(f"{self.x}, {self.y}", True, (255, 255, 255))
             self.config.screen.blit(
                 text,
                 (
-                    self.x + self.w / 2 - text.get_width() / 2,
-                    self.y - text.get_height(),
+                    rect.x + rect.w / 2 - text.get_width() / 2,
+                    rect.y - text.get_height(),
                 ),
             )
 
