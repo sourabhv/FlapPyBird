@@ -85,7 +85,7 @@ class Flappy:
 
     async def tick(self):
         if self.player.collided(self.pipes, self.floor):
-            return
+            return True
 
         for i, pipe in enumerate(self.pipes.upper):
             if self.player.crossed(pipe):
@@ -107,6 +107,7 @@ class Flappy:
         pygame.display.update()
         await asyncio.sleep(0)
         self.config.tick()
+        return False
 
     async def game_over(self):
         """crashes the player down and shows gameover image"""

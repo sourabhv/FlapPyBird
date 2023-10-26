@@ -28,12 +28,12 @@ class FlappyEnv(gym.Env):
         self.render_mode = rendermode
 
     async def run(self):
+        self.game.reset()
         while True:
-            self.game.reset()
             game_over = await self.step([])
-            if game_over: break
+            if game_over:
+                break
 
-        self.close()
 
     def _get_obs(self):
         pass
