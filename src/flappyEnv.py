@@ -32,20 +32,22 @@ class FlappyEnv(gym.Env):
     async def run(self):
         for _ in range(10):
             self.game.reset()
+            total_reward = 0
             while True:
                 action = 1 if rnd.randint(0,10) == 0 else 0
                 obs, reward, game_over, _, info = await self.step(action)
+                total_reward += reward
                 if game_over:
-                    self.print_episode_data(obs, reward)
+                    self.print_episode_data(obs, total_reward)
                     self.episode += 1
                     break           
         self.close()   
 
-    def print_episode_data(self, obs, reward):
+    def print_episode_data(self, obs, total_reward):
         print("--------------")
         print(f"Episode: {self.episode}")
         print(obs)
-        print(f"Score: {reward}")
+        print(f"Score: {total_reward}")
 
     def _get_obs(self):
         bird_height = int(self.game.player.cy)
@@ -90,7 +92,7 @@ class FlappyEnv(gym.Env):
         terminated = await self.game.tick()
         obs = self._get_obs()
         info = [] # TODO: define auxiliary info if needed
-        reward = 1 
+        reward = 1 if not terminated else 0
 
         return obs, reward, terminated, False, info
 
