@@ -47,4 +47,7 @@ class FlappyEnv(gym.Env):
         pass
 
     def close(self):
-        pass
+        if self.window is not None:
+            pygame.display.quit()
+            pygame.quit()
+            self.window = None  # type: ignore  # window is None after pygame.quit()
