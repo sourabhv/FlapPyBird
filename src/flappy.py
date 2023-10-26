@@ -76,9 +76,6 @@ class Flappy:
 #            if self.player.crossed(pipe):
         self.score.add()
 
-        for event in pygame.event.get():
-            self.check_quit_event(event)
-
         if self.flap_this_frame:
             self.player.flap()
             self.flap_this_frame = False

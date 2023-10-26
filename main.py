@@ -1,5 +1,4 @@
 import asyncio
-
 from src.flappyEnv import FlappyEnv
 
 if __name__ == "__main__":

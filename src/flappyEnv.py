@@ -30,21 +30,22 @@ class FlappyEnv(gym.Env):
         self.render_mode = rendermode
 
     async def run(self):
-        while True:
+        for _ in range(10):
             self.game.reset()
             while True:
-                action = 1 if randint(0,10) == 0 else 0
+                action = 1 if rnd.randint(0,10) == 0 else 0
                 obs, reward, game_over, _, info = await self.step(action)
                 if game_over:
-                    self.print_episode_data(obs)
+                    self.print_episode_data(obs, reward)
                     self.episode += 1
                     break           
         self.close()   
 
-    def print_episode_data(self, obs):
+    def print_episode_data(self, obs, reward):
         print("--------------")
         print(f"Episode: {self.episode}")
         print(obs)
+        print(f"Score: {reward}")
 
     def _get_obs(self):
         bird_height = int(self.game.player.cy)
@@ -74,19 +75,22 @@ class FlappyEnv(gym.Env):
         return obs, info
 
     async def step(self, action):
-        # player input
+        
         for event in pygame.event.get():
+            # player input
             if self.is_tap_event(event):
                 self.game.flap_this_frame = True
 
+            self.check_quit_event(event)
+
         # random space
-        # if action:
-            # self.game.flap_this_frame = True
+        if action:
+            self.game.flap_this_frame = True
 
         terminated = await self.game.tick()
         obs = self._get_obs()
         info = [] # TODO: define auxiliary info if needed
-        reward = -10 if terminated else 1
+        reward = 1 
 
         return obs, reward, terminated, False, info
 
@@ -102,11 +106,10 @@ class FlappyEnv(gym.Env):
         if event.type == QUIT or (
             event.type == KEYDOWN and event.key == K_ESCAPE
         ):
+            pygame.display.quit()
             pygame.quit()
             sys.exit()
 
     def close(self):
-        if self.window is not None:
-            pygame.display.quit()
-            pygame.quit()
-            self.window = None  # type: ignore  # window is None after pygame.quit()
+        pygame.display.quit()
+        pygame.quit()
