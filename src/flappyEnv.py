@@ -10,8 +10,8 @@ class FlappyEnv(gym.Env):
 
     def __init__(self, rendermode=None, size=0):
         self.game = Flappy()
-        self.height = self.game.config.window.height
-        self.width = self.game.config.window.width
+        self.height = self.game.config.window.viewport_height
+        self.width = self.game.config.window.viewport_width
         
         # obs space is composed of agent height and position of the gap in the next 2 pipes
         self.observation_space = Dict(
@@ -36,7 +36,20 @@ class FlappyEnv(gym.Env):
 
 
     def _get_obs(self):
-        pass
+        bird_height = self.game.player.cy
+        pipes = self.game.pipes.lower
+        pipes_y = []
+        pipes_x = []
+
+        if len(pipes) >= 2:
+            pipes_y.append(pipes[-2].y)
+            pipes_x.append(pipes[-2].cx)
+
+        pipes_y.append(pipes[-1].y)
+        pipes_y.append(pipes[-1].cx)
+
+        return {"bird": bird_height, "pipes_y": pipes_y, "pipes_x": pipes_x}
+        
 
     async def reset(self, seed=None, options=None):
         # We need the following line to seed self.np_random
