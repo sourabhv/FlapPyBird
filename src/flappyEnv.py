@@ -4,6 +4,7 @@ import pygame
 import gymnasium as gym
 from gymnasium import spaces
 
+import flappy
 
 class FlappyEnv(gym.Env):
     metadata = {}
@@ -13,3 +14,8 @@ class FlappyEnv(gym.Env):
 
     def _get_obs(self):
         pass
+    
+    async def reset(self):
+        self.player.set_mode(flappy.PlayerMode.CRASH)
+        self.pipes.stop()
+        self.floor.stop()
