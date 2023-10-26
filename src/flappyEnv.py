@@ -1,11 +1,9 @@
 import numpy as np
 import pygame
-from flappy import Flappy
+from .flappy import *
 
 import gymnasium as gym
 from gymnasium.spaces import Discrete, Dict, Tuple, Box
-
-import flappy
 
 class FlappyEnv(gym.Env):
     metadata = {"render_modes": ["human"], "render_fps": 30}
@@ -31,8 +29,8 @@ class FlappyEnv(gym.Env):
 
     async def run(self):
         while True:
-            self.reset()
-            game_over = await self.step()
+            self.game.reset()
+            game_over = await self.step([])
             if game_over: break
 
         self.close()

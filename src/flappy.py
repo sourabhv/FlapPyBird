@@ -36,7 +36,7 @@ class Flappy:
 
         self.flap_this_frame = False
 
-    async def reset(self):
+    def reset(self):
         self.background = Background(self.config)
         self.floor = Floor(self.config)
         self.player = Player(self.config)
