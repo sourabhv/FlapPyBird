@@ -5,6 +5,7 @@ from flappy import Flappy
 import gymnasium as gym
 from gymnasium.spaces import Discrete, Dict, Tuple, Box
 
+import flappy
 
 class FlappyEnv(gym.Env):
     metadata = {"render_modes": ["human"], "render_fps": 30}
@@ -31,11 +32,13 @@ class FlappyEnv(gym.Env):
     def _get_obs(self):
         pass
 
-    def reset(self, seed=None, options=None):
+    async def reset(self, seed=None, options=None):
         # We need the following line to seed self.np_random
         super().reset(seed=seed)
 
-        pass
+        self.player.set_mode(flappy.PlayerMode.CRASH)
+        self.pipes.stop()
+        self.floor.stop()
 
     def step(self, action):
         pass
@@ -45,4 +48,3 @@ class FlappyEnv(gym.Env):
 
     def close(self):
         pass
-
