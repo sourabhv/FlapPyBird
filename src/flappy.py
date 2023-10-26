@@ -68,28 +68,13 @@ class Flappy:
             await asyncio.sleep(0)
             self.config.tick()
 
-    def check_quit_event(self, event):
-        if event.type == QUIT or (
-            event.type == KEYDOWN and event.key == K_ESCAPE
-        ):
-            pygame.quit()
-            sys.exit()
-
-    def is_tap_event(self, event):
-        m_left, _, _ = pygame.mouse.get_pressed()
-        space_or_up = event.type == KEYDOWN and (
-            event.key == K_SPACE or event.key == K_UP
-        )
-        screen_tap = event.type == pygame.FINGERDOWN
-        return m_left or space_or_up or screen_tap
-
     async def tick(self):
         if self.player.collided(self.pipes, self.floor):
             return True
 
-        for i, pipe in enumerate(self.pipes.upper):
-            if self.player.crossed(pipe):
-                self.score.add()
+#        for i, pipe in enumerate(self.pipes.upper):
+#            if self.player.crossed(pipe):
+        self.score.add()
 
         for event in pygame.event.get():
             self.check_quit_event(event)
