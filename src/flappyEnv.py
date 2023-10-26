@@ -1,6 +1,7 @@
 import numpy as np
 import pygame
 from .flappy import *
+from random import randint
 
 import gymnasium as gym
 from gymnasium.spaces import Discrete, Dict, Tuple, Box
@@ -30,10 +31,11 @@ class FlappyEnv(gym.Env):
     async def run(self):
         self.game.reset()
         while True:
-            game_over, obs= await self.step([])
+            action = 1 if randint(0,10) == 0 else 0
+            game_over, obs= await self.step(action)
             print(obs)
             if game_over:
-                break
+                break           
 
 
     def _get_obs(self):
@@ -58,10 +60,23 @@ class FlappyEnv(gym.Env):
         self.game.reset()
 
     async def step(self, action):
-        # action here
-        gameover = await self.game.tick()
+        for event in pygame.event.get():
+            if self.is_tap_event(event):
+                self.game.flap_this_frame = True
 
+        # if action:
+            # self.game.flap_this_frame = True
+
+        gameover = await self.game.tick()
         return gameover, self._get_obs()
+
+    def is_tap_event(self, event):
+        m_left, _, _ = pygame.mouse.get_pressed()
+        space_or_up = event.type == KEYDOWN and (
+            event.key == K_SPACE or event.key == K_UP
+        )
+        screen_tap = event.type == pygame.FINGERDOWN
+        return m_left or space_or_up or screen_tap
 
     def close(self):
         if self.window is not None:
