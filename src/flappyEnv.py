@@ -32,7 +32,7 @@ class FlappyEnv(gym.Env):
         self.game.reset()
         while True:
             action = 1 if randint(0,10) == 0 else 0
-            game_over, obs= await self.step(action)
+            obs, reward, game_over, _, info = await self.step(action)
             print(obs)
             if game_over:
                 break           
@@ -59,6 +59,11 @@ class FlappyEnv(gym.Env):
         super().reset(seed=seed)
         self.game.reset()
 
+        obs = self._get_obs()
+        info = [] # TODO: define auxiliary info if needed
+
+        return obs, info
+
     async def step(self, action):
         for event in pygame.event.get():
             if self.is_tap_event(event):
@@ -67,8 +72,12 @@ class FlappyEnv(gym.Env):
         # if action:
             # self.game.flap_this_frame = True
 
-        gameover = await self.game.tick()
-        return gameover, self._get_obs()
+        terminated = await self.game.tick()
+        obs = self._get_obs()
+        info = [] # TODO: define auxiliary info if needed
+        reward = -10 if terminated else 1
+
+        return obs, reward, terminated, False, info
 
     def is_tap_event(self, event):
         m_left, _, _ = pygame.mouse.get_pressed()
