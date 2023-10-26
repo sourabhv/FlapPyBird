@@ -32,21 +32,22 @@ class Flappy:
             window=window,
             images=images,
             sounds=Sounds(),
-        )
+        )    
 
-    async def start(self):
-        while True:
-            self.background = Background(self.config)
-            self.floor = Floor(self.config)
-            self.player = Player(self.config)
-            self.welcome_message = WelcomeMessage(self.config)
-            self.game_over_message = GameOver(self.config)
-            self.pipes = Pipes(self.config)
-            self.score = Score(self.config)
-            await self.splash()
-            await self.play()
-            await self.game_over()
+        self.flap_this_frame = False
 
+    async def reset(self):
+        self.background = Background(self.config)
+        self.floor = Floor(self.config)
+        self.player = Player(self.config)
+        self.welcome_message = WelcomeMessage(self.config)
+        self.game_over_message = GameOver(self.config)
+        self.pipes = Pipes(self.config)
+        self.score = Score(self.config)
+        self.score.reset()
+        self.player.set_mode(PlayerMode.NORMAL)
+        self.flap_this_frame = False
+        
     async def splash(self):
         """Shows welcome splash screen animation of flappy bird"""
 
@@ -82,32 +83,30 @@ class Flappy:
         screen_tap = event.type == pygame.FINGERDOWN
         return m_left or space_or_up or screen_tap
 
-    async def play(self):
-        self.score.reset()
-        self.player.set_mode(PlayerMode.NORMAL)
+    async def tick(self):
+        if self.player.collided(self.pipes, self.floor):
+            return
 
-        while True:
-            if self.player.collided(self.pipes, self.floor):
-                return
+        for i, pipe in enumerate(self.pipes.upper):
+            if self.player.crossed(pipe):
+                self.score.add()
 
-            for i, pipe in enumerate(self.pipes.upper):
-                if self.player.crossed(pipe):
-                    self.score.add()
+        for event in pygame.event.get():
+            self.check_quit_event(event)
 
-            for event in pygame.event.get():
-                self.check_quit_event(event)
-                if self.is_tap_event(event):
-                    self.player.flap()
+        if self.flap_this_frame:
+            self.player.flap()
+            self.flap_this_frame = False
 
-            self.background.tick()
-            self.floor.tick()
-            self.pipes.tick()
-            self.score.tick()
-            self.player.tick()
+        self.background.tick()
+        self.floor.tick()
+        self.pipes.tick()
+        self.score.tick()
+        self.player.tick()
 
-            pygame.display.update()
-            await asyncio.sleep(0)
-            self.config.tick()
+        pygame.display.update()
+        await asyncio.sleep(0)
+        self.config.tick()
 
     async def game_over(self):
         """crashes the player down and shows gameover image"""

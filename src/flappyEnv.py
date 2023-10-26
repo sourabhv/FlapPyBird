@@ -29,22 +29,25 @@ class FlappyEnv(gym.Env):
         assert rendermode is None or rendermode in self.metadata["render_modes"]
         self.render_mode = rendermode
 
+    async def run(self):
+        while True:
+            self.reset()
+            game_over = await self.step()
+            if game_over: break
+
+        self.close()
+
     def _get_obs(self):
         pass
 
     async def reset(self, seed=None, options=None):
         # We need the following line to seed self.np_random
         super().reset(seed=seed)
+        self.game.reset()
 
-        self.player.set_mode(flappy.PlayerMode.CRASH)
-        self.pipes.stop()
-        self.floor.stop()
-
-    def step(self, action):
-        pass
-
-    def render(self):
-        pass
+    async def step(self, action):
+        # action here
+        return await self.game.tick()
 
     def close(self):
         if self.window is not None:
