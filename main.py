@@ -1,6 +1,6 @@
 import asyncio
-
-from src.flappy import Flappy
+from src.flappyEnv import FlappyEnv
 
 if __name__ == "__main__":
-    asyncio.run(Flappy().start())
+    process = FlappyEnv()
+    asyncio.run(process.run())
