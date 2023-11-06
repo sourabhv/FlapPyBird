@@ -1,6 +1,9 @@
 default:
 	@make run
 
+run-ai:
+	python main.py ai
+
 run:
 	python main.py
 

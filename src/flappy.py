@@ -4,6 +4,9 @@ import sys
 import pygame
 from pygame.locals import K_ESCAPE, K_SPACE, K_UP, KEYDOWN, QUIT
 
+from .ai.game_observation import GameObservation
+from .ai.game_result import GameResult
+from .ai.model import GameAction, Model
 from .entities import (
     Background,
     Floor,
@@ -34,6 +37,13 @@ class Flappy:
             sounds=Sounds(),
         )
 
+        self.human_player = (
+            False if len(sys.argv) > 1 and sys.argv[1] == "ai" else True
+        )
+        if not self.human_player:
+            self.model = Model()
+            self.model_results = []
+
     async def start(self):
         while True:
             self.background = Background(self.config)
@@ -43,9 +53,65 @@ class Flappy:
             self.game_over_message = GameOver(self.config)
             self.pipes = Pipes(self.config)
             self.score = Score(self.config)
-            await self.splash()
-            await self.play()
-            await self.game_over()
+
+            if not self.human_player:
+                print("Starting in AI mode")
+                await self.agent_play()
+                await self.game_over()
+            else:
+                await self.splash()
+                await self.play()
+                await self.game_over()
+
+    async def agent_play(self):
+        self.score.reset()
+        self.player.set_mode(PlayerMode.NORMAL)
+
+        while True:
+            # the observation we will pass to the AI agent
+            observation = GameObservation(
+                bird_y_pos=self.player.y,
+                y_dist_to_bot_pipe=self.pipes.upper[0].y - self.player.y,
+                y_dist_to_top_pipe=self.pipes.lower[0].y - self.player.y,
+                x_dist_to_pipe_pair=self.pipes.upper[0].x - self.player.x,
+                bird_y_vel=self.player.vel_y,
+            )
+
+            # Get agent decision
+            action = self.model.predict(observation)
+
+            # Perform action
+            if action == GameAction.JUMP and len(pygame.event.get()) == 0:
+                jump_event = pygame.event.Event(
+                    pygame.KEYDOWN, {"key": pygame.K_SPACE}
+                )
+                pygame.event.post(jump_event)
+            elif (
+                action == GameAction.DO_NOTHING and len(pygame.event.get()) > 0
+            ):
+                pygame.event.clear()
+
+            if self.player.collided(self.pipes, self.floor):
+                return
+
+            for i, pipe in enumerate(self.pipes.upper):
+                if self.player.crossed(pipe):
+                    self.score.add()
+
+            for event in pygame.event.get():
+                self.check_quit_event(event)
+                if self.is_tap_event(event):
+                    self.player.flap()
+
+            self.background.tick()
+            self.floor.tick()
+            self.pipes.tick()
+            self.score.tick()
+            self.player.tick()
+
+            pygame.display.update()
+            await asyncio.sleep(0)
+            self.config.tick()
 
     async def splash(self):
         """Shows welcome splash screen animation of flappy bird"""
@@ -116,12 +182,28 @@ class Flappy:
         self.pipes.stop()
         self.floor.stop()
 
-        while True:
-            for event in pygame.event.get():
-                self.check_quit_event(event)
-                if self.is_tap_event(event):
-                    if self.player.y + self.player.h >= self.floor.y - 1:
-                        return
+        if self.human_player:
+            while True:
+                for event in pygame.event.get():
+                    self.check_quit_event(event)
+                    if self.is_tap_event(event):
+                        if self.player.y + self.player.h >= self.floor.y - 1:
+                            return
+
+                self.background.tick()
+                self.floor.tick()
+                self.pipes.tick()
+                self.score.tick()
+                self.player.tick()
+                self.game_over_message.tick()
+
+                self.config.tick()
+                pygame.display.update()
+                await asyncio.sleep(0)
+        else:
+            # AI player
+            print("AI agent lost. Restarting...")
+            self.model_results.append(GameResult(self.score.score))
 
             self.background.tick()
             self.floor.tick()
