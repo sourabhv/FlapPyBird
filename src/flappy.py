@@ -7,12 +7,12 @@ from pygame.locals import K_ESCAPE, K_SPACE, K_UP, KEYDOWN, QUIT
 from .ai.game_observation import GameObservation
 from .ai.game_result import GameResult
 from .ai.model import GameAction, Model
+from .ai.bird import Bird
 from .ai.entities import (
     Background,
     Floor,
     GameOver,
     Pipes,
-    Player,
     PlayerMode,
     Score,
     WelcomeMessage,
@@ -48,7 +48,9 @@ class Flappy:
         while True:
             self.background = Background(self.config)
             self.floor = Floor(self.config)
-            self.player = Player(self.config)
+            self.player = Bird(self.config)
+            self.population = [Bird(self.config) for _ in range(10)]
+            
             self.welcome_message = WelcomeMessage(self.config)
             self.game_over_message = GameOver(self.config)
             self.pipes = Pipes(self.config)
@@ -65,53 +67,57 @@ class Flappy:
 
     async def agent_play(self):
         self.score.reset()
-        self.player.set_mode(PlayerMode.NORMAL)
+        for bird in self.population:
+            bird.set_mode(PlayerMode.NORMAL)
 
         while True:
-            # the observation we will pass to the AI agent
-            observation = GameObservation(
-                bird_y_pos=self.player.y,
-                y_dist_to_bot_pipe=self.pipes.upper[0].y - self.player.y,
-                y_dist_to_top_pipe=self.pipes.lower[0].y - self.player.y,
-                x_dist_to_pipe_pair=self.pipes.upper[0].x - self.player.x,
-                bird_y_vel=self.player.vel_y,
-            )
-
-            # Get agent decision
-            action = self.model.predict(observation)
-
-            # Perform action
-            if action == GameAction.JUMP and len(pygame.event.get()) == 0:
-                jump_event = pygame.event.Event(
-                    pygame.KEYDOWN, {"key": pygame.K_SPACE}
+            for bird in self.population:
+            
+                # the observation we will pass to the AI agent
+                observation = GameObservation(
+                    bird_y_pos=bird.y,
+                    y_dist_to_bot_pipe=self.pipes.upper[0].y - bird.y,
+                    y_dist_to_top_pipe=self.pipes.lower[0].y - bird.y,
+                    x_dist_to_pipe_pair=self.pipes.upper[0].x - bird.x,
+                    bird_y_vel=bird.vel_y,
                 )
-                pygame.event.post(jump_event)
-            elif (
-                action == GameAction.DO_NOTHING and len(pygame.event.get()) > 0
-            ):
-                pygame.event.clear()
 
-            if self.player.collided(self.pipes, self.floor):
-                return
+                # Get agent decision
+                action = bird.model.predict(observation)
 
-            for i, pipe in enumerate(self.pipes.upper):
-                if self.player.crossed(pipe):
-                    self.score.add()
+                # Perform action
+                if action == GameAction.JUMP and len(pygame.event.get()) == 0:
+                    jump_event = pygame.event.Event(
+                        pygame.KEYDOWN, {"key": pygame.K_SPACE}
+                    )
+                    pygame.event.post(jump_event)
+                elif (
+                    action == GameAction.DO_NOTHING and len(pygame.event.get()) > 0
+                ):
+                    pygame.event.clear()
 
-            for event in pygame.event.get():
-                self.check_quit_event(event)
-                if self.is_tap_event(event):
-                    self.player.flap()
+                if bird.collided(self.pipes, self.floor):
+                    return
 
-            self.background.tick()
-            self.floor.tick()
-            self.pipes.tick()
-            self.score.tick()
-            self.player.tick()
+                for i, pipe in enumerate(self.pipes.upper):
+                    if bird.crossed(pipe):
+                        self.score.add()
 
-            pygame.display.update()
-            await asyncio.sleep(0)
-            self.config.tick()
+                for event in pygame.event.get():
+                    self.check_quit_event(event)
+                    if self.is_tap_event(event):
+                        bird.flap()
+
+                self.background.tick()
+                self.floor.tick()
+                self.pipes.tick()
+                self.score.tick()
+                for bird in self.population:
+                    bird.tick()
+
+                pygame.display.update()
+                await asyncio.sleep(0)
+                self.config.tick()
 
     async def splash(self):
         """Shows welcome splash screen animation of flappy bird"""

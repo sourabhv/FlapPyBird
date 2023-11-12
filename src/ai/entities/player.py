@@ -165,3 +165,8 @@ class Player(Entity):
                 return True
 
         return False
+
+class MyPlayer(Player):
+    def __init__(self, config: GameConfig) -> None:
+        super().__init__(config)
+        # additional initialization code here
