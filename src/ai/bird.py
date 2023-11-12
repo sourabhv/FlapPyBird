@@ -13,7 +13,7 @@ class Bird(Player):
         super().__init__(config)
 
         self.model = Model()
-        self.score = GameResult(config)
+        self.score = 0
         self.time_alive = 0
         self.fitness = 0
         
@@ -22,7 +22,13 @@ class Bird(Player):
 
     def stop_flying(self):
         self.time_alive = time.time() - self.time_alive
-        
+    
+    def reset_score(self) -> None:
+        self.score = 0
+
+    def add_score(self) -> None:
+        self.score += 1
+
     def calculate_fitness(self):
         """
         Calculates the fitness of a bird in the Flappy Bird game.
@@ -36,8 +42,7 @@ class Bird(Player):
         weight_for_time_alive = 0.1
 
         # Calculate the fitness as a weighted combination of the score and time alive
-        score = self.score.get_game_score()
-        self.fitness = (weight_for_score * score) + (weight_for_time_alive * self.time_alive)
+        self.fitness = (weight_for_score * self.score) + (weight_for_time_alive * self.time_alive)
         print(f"Fitness: {self.fitness}")
 
     def get_fitness(self):
