@@ -231,4 +231,4 @@ class Flappy:
 
             self.config.tick()
             pygame.display.update()
-            await asyncio.sleep(0)
+            await asyncio.sleep(1)
