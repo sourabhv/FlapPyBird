@@ -17,7 +17,7 @@ from .ai.entities import (
     Score,
     WelcomeMessage,
 )
-from ai.utils import GameConfig, Images, Sounds, Window
+from .ai.utils import GameConfig, Images, Sounds, Window
 
 BIRD_NUMBER = 10
 class Flappy:
