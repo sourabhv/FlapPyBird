@@ -50,7 +50,8 @@ class Flappy:
             self.background = Background(self.config)
             self.floor = Floor(self.config)
             self.player = Bird(self.config)
-            self.population = self.ga.get_population()
+            if not self.human_player:
+                self.population = self.ga.get_population()
             self.death_population = []
             
             self.welcome_message = WelcomeMessage(self.config)
