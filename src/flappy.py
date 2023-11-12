@@ -7,7 +7,7 @@ from pygame.locals import K_ESCAPE, K_SPACE, K_UP, KEYDOWN, QUIT
 from .ai.game_observation import GameObservation
 from .ai.game_result import GameResult
 from .ai.model import GameAction, Model
-from .entities import (
+from .ai.entities import (
     Background,
     Floor,
     GameOver,
@@ -17,7 +17,7 @@ from .entities import (
     Score,
     WelcomeMessage,
 )
-from .utils import GameConfig, Images, Sounds, Window
+from ai.utils import GameConfig, Images, Sounds, Window
 
 
 class Flappy:
