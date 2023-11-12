@@ -215,7 +215,8 @@ class Flappy:
             self.floor.tick()
             self.pipes.tick()
             self.score.tick()
-            self.player.tick()
+            for bird in self.population:
+                bird.tick()
             self.game_over_message.tick()
 
             self.config.tick()
