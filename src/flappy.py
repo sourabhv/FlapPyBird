@@ -19,7 +19,7 @@ from .ai.entities import (
 )
 from ai.utils import GameConfig, Images, Sounds, Window
 
-BIRD_NUMBER = 20
+BIRD_NUMBER = 10
 class Flappy:
     def __init__(self):
         pygame.init()
