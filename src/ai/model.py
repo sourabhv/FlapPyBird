@@ -22,7 +22,7 @@ class Model:
                 layers.Dense(
                     10, activation="relu", input_shape=(5,)
                 ),  # Hidden layer with 10 neurons, and input shape of 5 (number of observation variables)
-                # layers.Dense(10, activation="relu"),  # Segunda capa oculta, opcional
+                #layers.Dense(10, activation="relu"),  # Segunda capa oculta, opcional
                 layers.Dense(
                     2, activation="softmax"
                 ),  # Output layer with 2 neurons (number of actions)
@@ -31,7 +31,7 @@ class Model:
 
         # Compile the model with the Adam optimizer and a loss function for categorical outcomes
         self.model.compile(
-            optimizer=Adam(learning_rate=0.001),
+            optimizer=Adam(learning_rate=0.01),
             loss="sparse_categorical_crossentropy",
             metrics=["accuracy"],
         )
