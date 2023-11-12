@@ -36,6 +36,20 @@ class Model:
             metrics=["accuracy"],
         )
 
+    def get_weights(self):
+        """
+            Returns the weights of the neural network model.
+        """
+        return self.model.get_weights()
+    
+    def set_weights(self, weights):
+        """
+            Set the weights of the model.
+            Args:
+                weights (list): A list of numpy arrays representing the weights of the model.
+        """
+        self.model.set_weights(weights)
+        
     # Decides action based on game observation
     def predict(self, game_observation: GameObservation) -> GameAction:
         # Preprocess observation into the format the model expects (a batch of one observation)

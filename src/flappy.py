@@ -31,7 +31,7 @@ class Flappy:
         self.config = GameConfig(
             screen=screen,
             clock=pygame.time.Clock(),
-            fps=30,
+            fps=120,
             window=window,
             images=images,
             sounds=Sounds(),
@@ -41,9 +41,8 @@ class Flappy:
             False if len(sys.argv) > 1 and sys.argv[1] == "ai" else True
         )
         if not self.human_player:
-            self.ga = GeneticAlgorithm()
+            self.ga = GeneticAlgorithm(self.config)
             self.ga.set_population([Bird(self.config) for _ in range(10)])
-            self.model_results = []
 
     async def start(self):
         while True:
