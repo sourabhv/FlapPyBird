@@ -77,7 +77,7 @@ class Flappy:
             for bird in self.population:
             
                 # the observation we will pass to the AI agent
-                observation = GameObservation(
+                self.observation = GameObservation(
                     bird_y_pos=bird.y,
                     y_dist_to_bot_pipe=self.pipes.upper[0].y - bird.y,
                     y_dist_to_top_pipe=self.pipes.lower[0].y - bird.y,
@@ -86,7 +86,7 @@ class Flappy:
                 )
 
                 # Get agent decision
-                action = bird.model.predict(observation)
+                action = bird.model.predict(self.observation)
 
                 # Perform action
                 if action == GameAction.JUMP and len(pygame.event.get()) == 0:
