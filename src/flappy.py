@@ -5,7 +5,7 @@ import pygame
 from pygame.locals import K_ESCAPE, K_SPACE, K_UP, KEYDOWN, QUIT
 
 from .ai.game_observation import GameObservation
-from .ai.game_result import GameResult
+from .ai.genetic_algorithm import GeneticAlgorithm
 from .ai.model import GameAction, Model
 from .ai.bird import Bird
 from .ai.entities import (
@@ -218,7 +218,9 @@ class Flappy:
         else:
             # AI player
             print("AI agent lost. Restarting...")
-
+            self.ga = GeneticAlgorithm()
+            self.ga.calculate_fitness(self.death_population)
+            
             self.background.tick()
             self.floor.tick()
             self.pipes.tick()
