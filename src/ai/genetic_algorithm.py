@@ -31,7 +31,6 @@ class GeneticAlgorithm:
 
         # Ordena la población por su aptitud (de mayor a menor)
         sorted_population = sorted(self.population, key=lambda bird: bird.get_fitness(), reverse=True)
-        print(f"Sorted population: {sorted_population}")
         # Selecciona los mejores individuos para ser padres (por ejemplo, la mitad superior)
         num_parents = len(self.population) // 2
         parents = sorted_population[:num_parents]
@@ -62,6 +61,24 @@ class GeneticAlgorithm:
 
         return child1_weights, child2_weights
 
+    def mutate(self, weights, mutation_rate=0.1, mutation_scale=0.1):
+        """
+        Aplica una mutación a los pesos de una red neuronal.
+        :param weights: Los pesos de la red neuronal a mutar.
+        :param mutation_rate: La probabilidad de que cada peso sea mutado.
+        :param mutation_scale: La magnitud de las mutaciones.
+        :return: Los pesos mutados.
+        """
+        mutated_weights = []
+        for weight_matrix in weights:
+            # Aplica una mutación a cada peso individualmente
+            if np.random.rand() < mutation_rate:
+                mutation = np.random.normal(loc=0.0, scale=mutation_scale, size=weight_matrix.shape)
+                mutated_weight_matrix = weight_matrix + mutation
+            else:
+                mutated_weight_matrix = weight_matrix
+            mutated_weights.append(mutated_weight_matrix)
+        return mutated_weights
 
     def create_new_generation(self):
         # Paso 1: Calculamos el fitness
@@ -81,8 +98,8 @@ class GeneticAlgorithm:
             child1_weights, child2_weights = self.crossover(parent1, parent2)
 
             # # Aplica la mutación a los pesos de los hijos
-            # child1_weights = self.model_mutate_v2(child1_weights)
-            # child2_weights = self.model_mutate_v2(child2_weights)
+            child1_weights = self.mutate(child1_weights)
+            child2_weights = self.mutate(child2_weights)
 
             # Crea nuevos modelos para los hijos y añádelos a la nueva población
             child1 = Bird(self.config)

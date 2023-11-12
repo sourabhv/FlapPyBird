@@ -100,7 +100,9 @@ class Flappy:
                     pygame.event.clear()
 
                 if bird.collided(self.pipes, self.floor):
+                    bird.set_mode(PlayerMode.CRASH)
                     bird.stop_flying()
+                    
                     # Remove bird from population
                     self.population.remove(bird)
                     self.death_population.append(bird)
@@ -108,9 +110,10 @@ class Flappy:
                     # If all birds are dead, restart the game
                     if len(self.population) == 0:
                         return
+                    
 
                 for i, pipe in enumerate(self.pipes.upper):
-                    if bird.crossed(pipe):
+                    if bird.crossed(pipe) and bird.get_mode() != PlayerMode.CRASH:
                         bird.score.add()
                         self.score.add()
 
@@ -221,6 +224,9 @@ class Flappy:
             # AI player
             print("AI agent lost. Restarting...")
             
+            self.pipes.stop()
+            self.floor.stop()
+        
             self.ga.set_population(self.death_population)
             self.ga.get_new_generation()
             
@@ -234,4 +240,4 @@ class Flappy:
 
             self.config.tick()
             pygame.display.update()
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.5)

@@ -43,7 +43,10 @@ class Player(Entity):
             if self.crash_entity == "pipe":
                 self.config.sounds.die.play()
             self.reset_vals_crash()
-
+            
+    def get_mode(self) -> PlayerMode:
+        return self.mode
+    
     def reset_vals_normal(self) -> None:
         self.vel_y = -9  # player's velocity along Y axis
         self.max_vel_y = 10  # max vel along Y, max descend speed
