@@ -41,7 +41,6 @@ class Flappy:
             False if len(sys.argv) > 1 and sys.argv[1] == "ai" else True
         )
         if not self.human_player:
-            self.model = Model()
             self.model_results = []
 
     async def start(self):
@@ -66,7 +65,7 @@ class Flappy:
                 await self.game_over()
 
     async def agent_play(self):
-        self.score.reset()
+        # self.score.reset()
         for bird in self.population:
             bird.set_mode(PlayerMode.NORMAL)
 
