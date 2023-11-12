@@ -215,7 +215,6 @@ class Flappy:
         else:
             # AI player
             print("AI agent lost. Restarting...")
-            self.model_results.append(GameResult(self.score.score))
 
             self.background.tick()
             self.floor.tick()

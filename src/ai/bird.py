@@ -1,4 +1,5 @@
 
+from .game_result import GameResult
 from .entities.player import Player
 from .model import Model
 
@@ -11,4 +12,4 @@ class Bird(Player):
         super().__init__(config)
 
         self.model = Model()
-        
+        self.score = GameResult(config)
