@@ -107,6 +107,7 @@ class Flappy:
 
                 for i, pipe in enumerate(self.pipes.upper):
                     if bird.crossed(pipe):
+                        bird.score.add()
                         self.score.add()
 
                 for event in pygame.event.get():
