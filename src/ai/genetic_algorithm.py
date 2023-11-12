@@ -13,7 +13,7 @@ class GeneticAlgorithm:
     def set_population(self, new_population):
         self.population = new_population
         
-    def get_population(self):
+    def get_population(self) -> List[Bird]:
         return self.population
         
     def calculate_fitness(self):

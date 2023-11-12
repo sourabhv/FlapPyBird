@@ -19,7 +19,7 @@ from .ai.entities import (
 )
 from ai.utils import GameConfig, Images, Sounds, Window
 
-
+BIRD_NUMBER = 20
 class Flappy:
     def __init__(self):
         pygame.init()
@@ -42,7 +42,7 @@ class Flappy:
         )
         if not self.human_player:
             self.ga = GeneticAlgorithm(self.config)
-            self.ga.set_population([Bird(self.config) for _ in range(10)])
+            self.ga.set_population([Bird(self.config) for _ in range(BIRD_NUMBER)])
 
     async def start(self):
         while True:
@@ -110,10 +110,10 @@ class Flappy:
                     # If all birds are dead, restart the game
                     if len(self.population) == 0:
                         return
-                    
+                
 
                 for i, pipe in enumerate(self.pipes.upper):
-                    if bird.crossed(pipe) and bird.get_mode() != PlayerMode.CRASH:
+                    if bird.crossed(pipe) and bird.get_mode() == PlayerMode.NORMAL:
                         bird.score.add()
                         self.score.add()
 
