@@ -71,10 +71,10 @@ class Flappy:
         # self.score.reset()
         for bird in self.population:
             bird.set_mode(PlayerMode.NORMAL)
-            bird.start_flying()
 
         while True:
             for bird in self.population:
+                bird.start_flying()
             
                 # the observation we will pass to the AI agent
                 self.observation = GameObservation(
@@ -99,6 +99,8 @@ class Flappy:
                 ):
                     pygame.event.clear()
 
+                await asyncio.sleep(0)
+                
                 if bird.collided(self.pipes, self.floor):
                     bird.set_mode(PlayerMode.CRASH)
                     bird.stop_flying()
