@@ -49,6 +49,7 @@ class Flappy:
             self.floor = Floor(self.config)
             self.player = Bird(self.config)
             self.population = [Bird(self.config) for _ in range(10)]
+            self.death_population = []
             
             self.welcome_message = WelcomeMessage(self.config)
             self.game_over_message = GameOver(self.config)
@@ -96,7 +97,13 @@ class Flappy:
                     pygame.event.clear()
 
                 if bird.collided(self.pipes, self.floor):
-                    return
+                    # Remove bird from population
+                    self.population.remove(bird)
+                    self.death_population.append(bird)
+                    
+                    # If all birds are dead, restart the game
+                    if len(self.population) == 0:
+                        return
 
                 for i, pipe in enumerate(self.pipes.upper):
                     if bird.crossed(pipe):
