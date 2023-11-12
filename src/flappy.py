@@ -69,6 +69,7 @@ class Flappy:
         # self.score.reset()
         for bird in self.population:
             bird.set_mode(PlayerMode.NORMAL)
+            bird.start_flying()
 
         while True:
             for bird in self.population:
@@ -97,6 +98,7 @@ class Flappy:
                     pygame.event.clear()
 
                 if bird.collided(self.pipes, self.floor):
+                    bird.stop_flying()
                     # Remove bird from population
                     self.population.remove(bird)
                     self.death_population.append(bird)
