@@ -219,7 +219,8 @@ class Flappy:
             # AI player
             print("AI agent lost. Restarting...")
             self.ga = GeneticAlgorithm()
-            self.ga.calculate_fitness(self.death_population)
+            self.ga.set_population(self.death_population)
+            self.ga.get_new_generation()
             
             self.background.tick()
             self.floor.tick()
