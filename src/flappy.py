@@ -41,6 +41,8 @@ class Flappy:
             False if len(sys.argv) > 1 and sys.argv[1] == "ai" else True
         )
         if not self.human_player:
+            self.ga = GeneticAlgorithm()
+            self.ga.set_population([Bird(self.config) for _ in range(10)])
             self.model_results = []
 
     async def start(self):
@@ -48,7 +50,7 @@ class Flappy:
             self.background = Background(self.config)
             self.floor = Floor(self.config)
             self.player = Bird(self.config)
-            self.population = [Bird(self.config) for _ in range(10)]
+            self.population = self.ga.get_population()
             self.death_population = []
             
             self.welcome_message = WelcomeMessage(self.config)
@@ -218,7 +220,7 @@ class Flappy:
         else:
             # AI player
             print("AI agent lost. Restarting...")
-            self.ga = GeneticAlgorithm()
+            
             self.ga.set_population(self.death_population)
             self.ga.get_new_generation()
             
