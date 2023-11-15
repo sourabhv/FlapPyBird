@@ -31,12 +31,13 @@ class FlappyEnv(gym.Env):
 
     async def run(self):
         for _ in range(10):
-            self.game.reset()
+            await self.reset()
             total_reward = 0
             while True:
                 action = 1 if rnd.randint(0,10) == 0 else 0
                 obs, reward, game_over, _, info = await self.step(action)
                 total_reward += reward
+                # print(obs)
                 if game_over:
                     self.print_episode_data(obs, total_reward)
                     self.episode += 1
@@ -67,9 +68,12 @@ class FlappyEnv(gym.Env):
 
     async def reset(self, seed=5, options=None):
         # We need the following line to seed self.np_random
-        super().reset(seed=seed)
-        rnd.seed(seed=seed)
-        self.game.reset()
+        # super().reset(seed=seed)
+        # randomize starting height (20-70% of screen height from top)
+        start_pos = (self.np_random.choice(51) + 20) / 100.0 
+        print(start_pos)
+        rnd.seed(seed)
+        self.game.reset(start_pos)
 
         obs = self._get_obs()
         info = [] # TODO: define auxiliary info if needed

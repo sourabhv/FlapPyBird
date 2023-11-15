@@ -36,10 +36,10 @@ class Flappy:
 
         self.flap_this_frame = False
 
-    def reset(self):
+    def reset(self, start_pos):
         self.background = Background(self.config)
         self.floor = Floor(self.config)
-        self.player = Player(self.config)
+        self.player = Player(self.config, start_pos)
         self.welcome_message = WelcomeMessage(self.config)
         self.game_over_message = GameOver(self.config)
         self.pipes = Pipes(self.config)

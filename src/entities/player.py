@@ -16,10 +16,10 @@ class PlayerMode(Enum):
 
 
 class Player(Entity):
-    def __init__(self, config: GameConfig) -> None:
+    def __init__(self, config: GameConfig, start_pos) -> None:
         image = config.images.player[0]
         x = int(config.window.width * 0.2)
-        y = int((config.window.height - image.get_height()) / 2)
+        y = int((config.window.height - image.get_height()) * start_pos)
         super().__init__(config, image, x, y)
         self.min_y = -2 * self.h
         self.max_y = config.window.viewport_height - self.h * 0.75
