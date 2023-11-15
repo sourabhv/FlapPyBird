@@ -18,7 +18,8 @@ class FlappyEnv(gym.Env):
         # obs space is composed of agent height and position of the gap in the next 2 pipes
         self.observation_space = Dict(
             {
-                "bird": Discrete(self.height),
+                "bird_y": Discrete(self.height),
+                "bird_vel": Discrete(20, start=-9),
                 "pipes_y": Box(0, self.height, shape=(2,), dtype=int),
                 "pipes_x": Box(0, self.width, shape=(2,), dtype=int),
             }
@@ -51,7 +52,8 @@ class FlappyEnv(gym.Env):
         print(f"Score: {total_reward}")
 
     def _get_obs(self):
-        bird_height = int(self.game.player.cy)
+        bird_y = int(self.game.player.cy)
+        bird_vel = int(self.game.player.vel_y)
         pipes = self.game.pipes.lower
         pipes_y = []
         pipes_x = []
@@ -63,7 +65,7 @@ class FlappyEnv(gym.Env):
         pipes_y.append(int(pipes[-1].y))
         pipes_x.append(int(pipes[-1].cx))
 
-        return {"bird": bird_height, "pipes_y": pipes_y, "pipes_x": pipes_x}
+        return {"bird_y": bird_y, "bird_vel": bird_vel, "pipes_y": pipes_y, "pipes_x": pipes_x}
         
 
     async def reset(self, seed=5, options=None):
