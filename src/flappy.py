@@ -32,9 +32,7 @@ class Flappy:
             window=window,
             images=images,
             sounds=Sounds(),
-        )    
-
-        self.flap_this_frame = False
+        )
 
     def reset(self, start_pos):
         self.background = Background(self.config)
@@ -46,7 +44,6 @@ class Flappy:
         self.score = Score(self.config)
         self.score.reset()
         self.player.set_mode(PlayerMode.NORMAL)
-        self.flap_this_frame = False
         
     async def splash(self):
         """Shows welcome splash screen animation of flappy bird"""
@@ -68,7 +65,15 @@ class Flappy:
             await asyncio.sleep(0)
             self.config.tick()
 
-    async def tick(self):
+    async def tick(self, flap_this_frame):
+
+        # player input
+        for event in pygame.event.get():
+            if self.is_tap_event(event):
+                flap_this_frame = True
+
+            self.check_quit_event(event)
+
         if self.player.collided(self.pipes, self.floor):
             return True
 
@@ -76,9 +81,8 @@ class Flappy:
 #            if self.player.crossed(pipe):
         self.score.add()
 
-        if self.flap_this_frame:
+        if flap_this_frame:
             self.player.flap()
-            self.flap_this_frame = False
 
         self.background.tick()
         self.floor.tick()
@@ -90,6 +94,22 @@ class Flappy:
         await asyncio.sleep(0)
         self.config.tick()
         return False
+    
+    def is_tap_event(self, event):
+        m_left, _, _ = pygame.mouse.get_pressed()
+        space_or_up = event.type == KEYDOWN and (
+            event.key == K_SPACE or event.key == K_UP
+        )
+        screen_tap = event.type == pygame.FINGERDOWN
+        return m_left or space_or_up or screen_tap
+    
+    def check_quit_event(self, event):
+        if event.type == QUIT or (
+            event.type == KEYDOWN and event.key == K_ESCAPE
+        ):
+            pygame.display.quit()
+            pygame.quit()
+            sys.exit()
 
     async def game_over(self):
         """crashes the player down and shows gameover image"""
