@@ -31,10 +31,6 @@ class QLearner:
                 
                 # take action and observe outcome:
                 obs, reward, terminated, _, _ = await env.step(action)
-                
-                # new_state = f"{obs['bird_y']}_{obs['bird_vel']}_{obs['pipes_x'][0]}_{obs['pipes_y'][0]}"
-                # if len(obs['pipes_y']) > 1:
-                #     new_state += f"_{obs['pipes_x'][1]}_{obs['pipes_y'][1]}"
 
                 # update Q value
                 new_state = list(obs.values())
@@ -44,31 +40,21 @@ class QLearner:
                 # update state
                 state = new_state
         print("reached pi!!!!!")
-        Pi = np.zeros_like(Q)
+        Q_2D = np.reshape(Q, (-1, 2))
+        Pi = np.zeros_like(Q_2D)
         
-        for i in range(len(Q)):
-            Pi[i, np.argmax(Q[i])] = 1
+        for i in range(len(Q_2D)):
+            Pi[i, np.argmax(Q_2D[i])] = 1
 
-        Pi = diagonalization(Pi, env.n_states, env.n_actions)
+        # Pi = diagonalization(Pi, np.prod(list(env.get_state_shape)), env.n_actions)
 
-        return Pi, np.reshape(Q, (env.n_states * env.n_actions, 1))
+        return Pi, np.reshape(Q_2D, (np.prod(list(env.get_state_shape)) * env.n_actions, 1))
 
     def _lookup(self, dict, indexers):
         if len(indexers) == 0:
             return dict
         
         return self._lookup(dict[indexers[0]], indexers[1:])
-
-    def uuid_from_obs(self, obs):
-        uuid = 0
-        maxes = [int(404 / 50), 20, int(404 / 50), int(288 / 50), int(404 / 50), int(288 / 50)]
-        # print(np.prod(maxes))
-        input()
-        keys = list(obs.keys())
-        for i in range(len(keys)):
-            factor = np.prod(maxes[:i])
-            uuid += int(obs[keys[i]] * factor)
-        return uuid
 
     def DynaQ(env, gamma, step_size, epsilon, max_episode, max_model_step):
 

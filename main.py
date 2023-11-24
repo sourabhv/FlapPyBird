@@ -6,7 +6,8 @@ async def run():
     env = FlappyEnv()
 
     model = qlearning.QLearner()
-    await model.run(env, 0.9, 0.1, 0.1, 1000)
+    Pi, Q = await model.run(env, 0.9, 0.1, 0.1, 1000)
+    Pi.tofile('output/Pi.csv', sep=",")
 
     # for episode in range(10):
     #     await env.reset()

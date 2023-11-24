@@ -9,7 +9,7 @@ from gymnasium.spaces import Discrete, Dict, Tuple, Box
 SPACE_DIVISOR = 50
 
 class FlappyEnv(gym.Env):
-    metadata = {"render_modes": ["human"], "render_fps": 30}
+    metadata = {"render_modes": ["human"], "render_fps": 3000}
 
     def __init__(self, rendermode=None, size=0):
         self.game = Flappy(self.metadata["render_fps"])
