@@ -4,6 +4,8 @@ from typing import List
 from ..utils import GameConfig
 from .entity import Entity
 
+PIPE_GAP_MIN = 100
+PIPE_GAP_MAX = 180
 
 class Pipe(Entity):
     def __init__(self, *args, **kwargs) -> None:
@@ -21,7 +23,6 @@ class Pipes(Entity):
 
     def __init__(self, config: GameConfig) -> None:
         super().__init__(config)
-        self.pipe_gap = 120
         self.top = 0
         self.bottom = self.config.window.viewport_height
         self.upper = []
@@ -81,8 +82,8 @@ class Pipes(Entity):
         """returns a randomly generated pipe"""
         # y of gap between upper and lower pipe
         base_y = self.config.window.viewport_height
-
-        gap_y = random.randrange(0, int(base_y * 0.6 - self.pipe_gap))
+        pipe_gap = random.randint(PIPE_GAP_MIN,PIPE_GAP_MAX)
+        gap_y = random.randrange(0, int(base_y * 0.6 - pipe_gap))
         gap_y += int(base_y * 0.2)
         pipe_height = self.config.images.pipe[0].get_height()
         pipe_x = self.config.window.width + 10
@@ -92,13 +93,17 @@ class Pipes(Entity):
             self.config.images.pipe[0],
             pipe_x,
             gap_y - pipe_height,
+            self.config.images.pipe[1].get_width() * 1.5,
+            self.config.images.pipe[1].get_height()
         )
 
         lower_pipe = Pipe(
             self.config,
             self.config.images.pipe[1],
             pipe_x,
-            gap_y + self.pipe_gap,
+            gap_y +pipe_gap,
+            self.config.images.pipe[1].get_width() * 1.5,
+            self.config.images.pipe[1].get_height()
         )
 
         return upper_pipe, lower_pipe
