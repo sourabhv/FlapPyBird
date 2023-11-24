@@ -111,6 +111,16 @@ class Flappy:
             pygame.quit()
             sys.exit()
 
+    def _draw_observation_points(self, ob):
+        for i in range(len(ob["pipes_x"])):
+            # bottom pipe, top left corner
+            pygame.draw.circle(self.config.screen, (255,0,0), (ob["pipes_x"][i], ob["pipes_y"][i]), 15)
+            # top pipe, bottom left corner
+            pygame.draw.circle(self.config.screen, (0,0,255), (ob["pipes_x"][i], ob["pipes_y"][i] - ob["pipes_h"][i]), 15)
+            # bottom pipe, top right corner
+            pygame.draw.circle(self.config.screen, (0,255,0), (ob["pipes_x"][i] + ob["pipes_w"][i], ob["pipes_y"][i]), 15)
+        pygame.display.update()
+
     async def game_over(self):
         """crashes the player down and shows gameover image"""
 

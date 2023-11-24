@@ -21,6 +21,8 @@ class FlappyEnv(gym.Env):
                 "bird_vel": Discrete(20, start=-9),
                 "pipes_y": Box(0, self.height, shape=(2,), dtype=int),
                 "pipes_x": Box(0, self.width, shape=(2,), dtype=int),
+                "pipes_h": Box(0, self.height, shape=(2,), dtype=int),
+                "pipes_w": Box(0, self.width, shape=(2,), dtype=int)
             }
         )
         # 2 actions: 0 -> no action, 1 -> jump
@@ -33,17 +35,24 @@ class FlappyEnv(gym.Env):
         bird_y = int(self.game.player.cy)
         bird_vel = int(self.game.player.vel_y)
         pipes = self.game.pipes.lower
+        pipes_upper = self.game.pipes.upper
         pipes_y = []
         pipes_x = []
+        pipes_h = []
+        pipes_w = []
 
         if len(pipes) >= 2:
             pipes_y.append(int(pipes[-2].y))
-            pipes_x.append(int(pipes[-2].cx))
+            pipes_x.append(int(pipes[-2].x))
+            pipes_h.append(int(pipes[-2].y - (pipes_upper[-2].y + pipes_upper[-2].h)))
+            pipes_w.append(int(pipes[-2].w))
 
         pipes_y.append(int(pipes[-1].y))
-        pipes_x.append(int(pipes[-1].cx))
+        pipes_x.append(int(pipes[-1].x))
+        pipes_h.append(int(pipes[-1].y - (pipes_upper[-1].y + pipes_upper[-1].h)))
+        pipes_w.append(int(pipes[-1].w))
 
-        return {"bird_y": bird_y, "bird_vel": bird_vel, "pipes_y": pipes_y, "pipes_x": pipes_x}
+        return {"bird_y": bird_y, "bird_vel": bird_vel, "pipes_y": pipes_y, "pipes_x": pipes_x, "pipes_h": pipes_h, "pipes_w": pipes_w}
     
     def _get_info(self):
         return []
@@ -69,6 +78,7 @@ class FlappyEnv(gym.Env):
         info = self._get_info()
         reward = 1 if not terminated else 0
 
+        # self.game._draw_observation_points(obs)
         return obs, reward, terminated, False, info
 
     def close(self):
