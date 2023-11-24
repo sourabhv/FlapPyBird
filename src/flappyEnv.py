@@ -6,6 +6,8 @@ import random as rnd
 import gymnasium as gym
 from gymnasium.spaces import Discrete, Dict, Tuple, Box
 
+SPACE_DIVISOR = 50
+
 class FlappyEnv(gym.Env):
     metadata = {"render_modes": ["human"], "render_fps": 30}
 
@@ -17,12 +19,14 @@ class FlappyEnv(gym.Env):
         # obs space is composed of agent height and position of the gap in the next 2 pipes
         self.observation_space = Dict(
             {
-                "bird_y": Discrete(self.height),
-                "bird_vel": Discrete(20, start=-9),
-                "pipes_y": Box(0, self.height, shape=(2,), dtype=int),
-                "pipes_x": Box(0, self.width, shape=(2,), dtype=int),
-                "pipes_h": Box(0, self.height, shape=(2,), dtype=int),
-                "pipes_w": Box(0, self.width, shape=(2,), dtype=int)
+                "bird_y": Discrete(int(self.height / SPACE_DIVISOR)),
+                "bird_vel": Discrete(20),
+                "pipe1_y": Discrete(int(self.height / SPACE_DIVISOR)),
+                "pipe1_x": Discrete(int(self.width / SPACE_DIVISOR)),
+                "pipe2_y": Discrete(int(self.height / SPACE_DIVISOR)),
+                "pipe2_x": Discrete(int(self.width / SPACE_DIVISOR))
+                # "pipes_h": Box(0, self.height, shape=(2,), dtype=int),
+                # "pipes_w": Box(0, self.width, shape=(2,), dtype=int)
             }
         )
         # 2 actions: 0 -> no action, 1 -> jump
@@ -31,28 +35,38 @@ class FlappyEnv(gym.Env):
         assert rendermode is None or rendermode in self.metadata["render_modes"]
         self.render_mode = rendermode
 
+    @property
+    def get_state_shape(self):        
+        return (int(404 / SPACE_DIVISOR),
+                20,
+                int(404 / SPACE_DIVISOR),
+                int(288 / SPACE_DIVISOR),
+                int(404 / SPACE_DIVISOR),                
+                int(288 / SPACE_DIVISOR)                
+        )
+    
+    @property
+    def n_actions(self):
+        return 2
+
     def _get_obs(self):
-        bird_y = int(self.game.player.cy)
-        bird_vel = int(self.game.player.vel_y)
+        bird_y = int(self.game.player.cy / SPACE_DIVISOR)
+        bird_vel = int(self.game.player.vel_y) + 9
         pipes = self.game.pipes.lower
         pipes_upper = self.game.pipes.upper
-        pipes_y = []
-        pipes_x = []
-        pipes_h = []
-        pipes_w = []
+        pipe1_y = pipe1_x = pipe2_y = pipe2_x = pipe_h = pipe_w = 0        
+
+        pipe1_y = int(pipes[0].y / SPACE_DIVISOR)
+        pipe1_x = int(pipes[0].x / SPACE_DIVISOR)
 
         if len(pipes) >= 2:
-            pipes_y.append(int(pipes[-2].y))
-            pipes_x.append(int(pipes[-2].x))
-            pipes_h.append(int(pipes[-2].y - (pipes_upper[-2].y + pipes_upper[-2].h)))
-            pipes_w.append(int(pipes[-2].w))
+            pipe2_y = int(pipes[1].y / SPACE_DIVISOR)
+            pipe2_x = int(pipes[1].x / SPACE_DIVISOR)
 
-        pipes_y.append(int(pipes[-1].y))
-        pipes_x.append(int(pipes[-1].x))
-        pipes_h.append(int(pipes[-1].y - (pipes_upper[-1].y + pipes_upper[-1].h)))
-        pipes_w.append(int(pipes[-1].w))
+        pipe_h = int(pipes[0].y - (pipes_upper[0].y + pipes_upper[0].h))
+        pipe_w = int(pipes[0].w)
 
-        return {"bird_y": bird_y, "bird_vel": bird_vel, "pipes_y": pipes_y, "pipes_x": pipes_x, "pipes_h": pipes_h, "pipes_w": pipes_w}
+        return {"bird_y": bird_y, "bird_vel": bird_vel, "pipe1_y": pipe1_y, "pipe1_x": pipe1_x, "pipe2_y": pipe2_y, "pipe2_x": pipe2_x} # , "pipes_h": pipes_h, "pipes_w": pipes_w}
     
     def _get_info(self):
         return []

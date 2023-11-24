@@ -5,7 +5,7 @@ from ..utils import GameConfig
 from .entity import Entity
 
 PIPE_GAP_MIN = 100
-PIPE_GAP_MAX = 180
+PIPE_GAP_MAX = 100
 
 class Pipe(Entity):
     def __init__(self, *args, **kwargs) -> None:
@@ -86,7 +86,7 @@ class Pipes(Entity):
         gap_y = random.randrange(0, int(base_y * 0.6 - pipe_gap))
         gap_y += int(base_y * 0.2)
         pipe_height = self.config.images.pipe[0].get_height()
-        pipe_x = self.config.window.width + 10
+        pipe_x = self.config.window.width
 
         upper_pipe = Pipe(
             self.config,
