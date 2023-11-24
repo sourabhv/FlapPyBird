@@ -18,7 +18,7 @@ from .utils import GameConfig, Images, Sounds, Window
 
 
 class Flappy:
-    def __init__(self):
+    def __init__(self, speed):
         pygame.init()
         pygame.display.set_caption("Flappy Bird")
         window = Window(288, 512)
@@ -28,7 +28,7 @@ class Flappy:
         self.config = GameConfig(
             screen=screen,
             clock=pygame.time.Clock(),
-            fps=30,
+            fps=speed,
             window=window,
             images=images,
             sounds=Sounds(),

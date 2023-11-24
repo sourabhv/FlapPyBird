@@ -26,7 +26,7 @@ class QLearner:
             while not terminated:
                 
                 # select action
-                print(state)
+                # print(state)
                 action = epsilon_greedy_select(self._lookup(Q, state))
                 
                 # take action and observe outcome:
@@ -38,7 +38,7 @@ class QLearner:
 
                 # update Q value
                 new_state = list(obs.values())
-                print(new_state)
+                # print(new_state)
                 self._lookup(Q,state)[action] = self._lookup(Q, state)[action] + step_size * (reward + gamma * max(self._lookup(Q,new_state)) - self._lookup(Q, state)[action])
             
                 # update state
@@ -62,7 +62,7 @@ class QLearner:
     def uuid_from_obs(self, obs):
         uuid = 0
         maxes = [int(404 / 50), 20, int(404 / 50), int(288 / 50), int(404 / 50), int(288 / 50)]
-        print(np.prod(maxes))
+        # print(np.prod(maxes))
         input()
         keys = list(obs.keys())
         for i in range(len(keys)):

@@ -1,6 +1,6 @@
 import asyncio
 from src.flappyEnv import FlappyEnv
-from models.QLearning import qlearning
+from src.models.QLearning import qlearning
 
 async def run():
     env = FlappyEnv()
@@ -13,7 +13,7 @@ async def run():
     #     total_reward = 0
     #     while True:
     #         action = env.action_space.sample()
-    #         action = 1 if env.np_random.choice(20) == 0 else 0
+    #         action = 0 if env.np_random.choice(20) == 0 else 0
     #         obs, reward, game_over, _, info = await env.step(action)
     #         total_reward += reward
     #         # print(obs)

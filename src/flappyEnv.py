@@ -12,9 +12,9 @@ class FlappyEnv(gym.Env):
     metadata = {"render_modes": ["human"], "render_fps": 30}
 
     def __init__(self, rendermode=None, size=0):
-        self.game = Flappy()
+        self.game = Flappy(self.metadata["render_fps"])
         self.height = int(self.game.config.window.viewport_height)
-        self.width = int(self.game.config.window.viewport_width)
+        self.width = 627 # int(self.game.config.window.viewport_width)
         
         # obs space is composed of agent height and position of the gap in the next 2 pipes
         self.observation_space = Dict(
@@ -37,12 +37,12 @@ class FlappyEnv(gym.Env):
 
     @property
     def get_state_shape(self):        
-        return (int(404 / SPACE_DIVISOR),
+        return (int(404 / SPACE_DIVISOR)+1,
                 20,
-                int(404 / SPACE_DIVISOR),
-                int(288 / SPACE_DIVISOR),
-                int(404 / SPACE_DIVISOR),                
-                int(288 / SPACE_DIVISOR)                
+                int(404 / SPACE_DIVISOR)+1,
+                int(627 / SPACE_DIVISOR)+1,
+                int(404 / SPACE_DIVISOR)+1,                
+                int(627 / SPACE_DIVISOR)+1                
         )
     
     @property
@@ -58,10 +58,12 @@ class FlappyEnv(gym.Env):
 
         pipe1_y = int(pipes[0].y / SPACE_DIVISOR)
         pipe1_x = int(pipes[0].x / SPACE_DIVISOR)
+        # print(f"pipe1_y: {pipe1_y} || pipe1_x: {pipe1_x}")
 
         if len(pipes) >= 2:
             pipe2_y = int(pipes[1].y / SPACE_DIVISOR)
             pipe2_x = int(pipes[1].x / SPACE_DIVISOR)
+            # print(f"pipe2_y: {pipe2_y} || pipe2_x: {pipe2_x}")
 
         pipe_h = int(pipes[0].y - (pipes_upper[0].y + pipes_upper[0].h))
         pipe_w = int(pipes[0].w)

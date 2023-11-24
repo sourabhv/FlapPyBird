@@ -93,7 +93,7 @@ class Pipes(Entity):
             self.config.images.pipe[0],
             pipe_x,
             gap_y - pipe_height,
-            self.config.images.pipe[1].get_width() * 1.5,
+            self.config.images.pipe[1].get_width() * 1,
             self.config.images.pipe[1].get_height()
         )
 
@@ -102,7 +102,7 @@ class Pipes(Entity):
             self.config.images.pipe[1],
             pipe_x,
             gap_y +pipe_gap,
-            self.config.images.pipe[1].get_width() * 1.5,
+            self.config.images.pipe[1].get_width() * 1,
             self.config.images.pipe[1].get_height()
         )
 
