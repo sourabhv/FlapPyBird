@@ -2,7 +2,7 @@ import numpy as np
 from .A2helpers import *
 
 class QLearner:
-    async def run(self, env, gamma, step_size, epsilon, max_episode):
+    async def run(self, env, gamma, step_size, epsilon, max_episode, callback_step, callback):
 
         def epsilon_greedy_select(q):
             # with small chance, select a random action
@@ -15,7 +15,9 @@ class QLearner:
         Q = np.zeros(env.get_state_shape + (env.n_actions,))
         print(Q.shape)
 
-        for _ in range(max_episode):
+        scores = []
+
+        for episode in range(max_episode):
 
             # reset world and get initial state        
             obs, _ = await env.reset()
@@ -23,6 +25,7 @@ class QLearner:
             state = list(obs.values())
 
             terminated = False
+            score = 0
             while not terminated:
                 
                 # select action
@@ -31,6 +34,7 @@ class QLearner:
                 
                 # take action and observe outcome:
                 obs, reward, terminated, _, _ = await env.step(action)
+                score += 1 
 
                 # update Q value
                 new_state = list(obs.values())
@@ -39,6 +43,13 @@ class QLearner:
             
                 # update state
                 state = new_state
+
+            scores.append(score)
+
+            if episode % callback_step == 0:
+                callback(episode=episode, score=np.mean(scores))
+                scores = []
+
         print("reached pi!!!!!")
         Q_2D = np.reshape(Q, (-1, 2))
         Pi = np.zeros_like(Q_2D)

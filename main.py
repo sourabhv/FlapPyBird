@@ -1,12 +1,13 @@
 import asyncio
 from src.flappyEnv import FlappyEnv
 from src.models.QLearning import qlearning
+from datetime import datetime
 
 async def run():
     env = FlappyEnv()
 
     model = qlearning.QLearner()
-    Pi, Q = await model.run(env, 0.9, 0.1, 0.1, 1000)
+    Pi, Q = await model.run(env, gamma=0.9, step_size=0.1, epsilon=0.1, max_episode=60000, callback_step=100, callback=callback)
     Pi.tofile('output/Pi.csv', sep=",")
 
     # for episode in range(10):
@@ -23,10 +24,12 @@ async def run():
     #             break           
     env.close()
 
-def print_episode_data(episode, total_reward):
-    print("--------------")
-    print(f"Episode: {episode}")
-    print(f"Score: {total_reward}")
+def callback(episode:int=None, score:float=None, Q=None):
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    # print("--------------")
+    print(f"{current_time}  --  Episode: {episode} || Score: {score}")
+    # possibly save Q to file
 
 if __name__ == "__main__":
     asyncio.run(run())
