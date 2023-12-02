@@ -6,7 +6,7 @@ import random as rnd
 import gymnasium as gym
 from gymnasium.spaces import Discrete, Dict, Tuple, Box
 
-SPACE_DIVISOR = 50
+SPACE_DIVISOR = 1
 
 class FlappyEnv(gym.Env):
     metadata = {"render_modes": ["human"], "render_fps": 30}
