@@ -1,9 +1,11 @@
 import asyncio
 from src.flappyEnv import FlappyEnv
+from src.flappyEnv2 import FlappyEnv2
 from src.models.QLearning import qlearning
+from src.models import DQN
 from datetime import datetime
 
-async def run():
+def run():
     env = FlappyEnv()
 
     # model = qlearning.QLearner()
@@ -16,7 +18,7 @@ async def run():
         while True:
             action = env.action_space.sample()
             action = 0 if env.np_random.choice(20) == 0 else 0
-            obs, reward, game_over, _, info = await env.step(action)
+            obs, reward, game_over, _, info = env.step(action)
             total_reward += reward
             # print(obs)
             if game_over:
@@ -31,5 +33,14 @@ def callback(episode:int=None, score:float=None, Q=None):
     print(f"{current_time}  --  Episode: {episode} || Score: {score}")
     # possibly save Q to file
 
+def run_dqn():
+    env = FlappyEnv2()
+    # print(env.observation_space)
+
+    model = DQN.DQN_Model(env)
+    # print(model.device)
+
+    model.train(500)
+
 if __name__ == "__main__":
-    asyncio.run(run())
+    run_dqn()
