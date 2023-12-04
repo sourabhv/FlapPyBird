@@ -77,8 +77,11 @@ class Flappy:
         if self.player.collided(self.pipes, self.floor):
             return True
 
-#        for i, pipe in enumerate(self.pipes.upper):
-#            if self.player.crossed(pipe):
+        for i, pipe in enumerate(self.pipes.upper):
+            if self.player.crossed(pipe):
+                #print("We added")
+                self.score.add()
+                
         self.score.add()
 
         if flap_this_frame:

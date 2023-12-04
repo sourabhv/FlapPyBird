@@ -34,7 +34,7 @@ class Player(Entity):
         self.mode = mode
         if mode == PlayerMode.NORMAL:
             self.reset_vals_normal()
-            self.config.sounds.wing.play()
+            #self.config.sounds.wing.play()
         elif mode == PlayerMode.SHM:
             self.reset_vals_shm()
         elif mode == PlayerMode.CRASH:
@@ -139,7 +139,7 @@ class Player(Entity):
             self.vel_y = self.flap_acc
             self.flapped = True
             self.rot = 80
-            self.config.sounds.wing.play()
+            #self.config.sounds.wing.play()
 
     def crossed(self, pipe: Pipe) -> bool:
         return pipe.cx <= self.cx < pipe.cx - pipe.vel_x
@@ -164,4 +164,29 @@ class Player(Entity):
                 self.crash_entity = "pipe"
                 return True
 
+        return False
+    
+    def collided_pipe(self, pipes: Pipes) -> bool:
+        """returns True if player collides with floor or pipes."""
+        
+        for pipe in pipes.upper:
+            if self.collide(pipe):
+                self.crashed = True
+                self.crash_entity = "pipe"
+                return True
+        for pipe in pipes.lower:
+            if self.collide(pipe):
+                self.crashed = True
+                self.crash_entity = "pipe"
+                return True
+
+        return False
+    
+    def collided_floor(self, floor) -> bool:
+        
+        if self.collide(floor):
+            self.crashed = True
+            self.crash_entity = "floor"
+            return True
+        
         return False

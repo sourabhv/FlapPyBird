@@ -1,31 +1,52 @@
-import asyncio
 from src.flappyEnv import FlappyEnv
-from src.models.QLearning import qlearning
+from src.RFB import RbfFeaturizer
+import numpy as np
+import asyncio
 
-async def run():
+async def main():
     env = FlappyEnv()
+    featurizer = RbfFeaturizer(env)
+    
+    # Hyperparameters
+    featurizer.alpha = 0.1  # Increased learning rate
+    featurizer.gamma = 0.95  # Adjusted discount factor
+    featurizer.epsilon = 0.9  # Reduced initial exploration rate
+    epsilon_decay = 0.05
+    num_episodes = 10000
+    min_epsilon = 0.01
 
-    model = qlearning.QLearner()
-    await model.run(env, 0.9, 0.1, 0.1, 1000)
+    for episode in range(num_episodes):
+        state, _ = await env.reset()
+        features = featurizer.featurize(state)
+        episode_Score = 0
+        total_q_value_change = 0
+        num_steps = 0
+        total_Score = 0
 
-    # for episode in range(10):
-    #     await env.reset()
-    #     total_reward = 0
-    #     while True:
-    #         action = env.action_space.sample()
-    #         action = 0 if env.np_random.choice(20) == 0 else 0
-    #         obs, reward, game_over, _, info = await env.step(action)
-    #         total_reward += reward
-    #         # print(obs)
-    #         if game_over:
-    #             print_episode_data(episode+1, total_reward)
-    #             break           
+        done = False
+        while not done:
+            action = featurizer.choose_action(features)
+            next_state, reward, done, info = await env.step(action)
+            #print(next_state)
+            next_features = featurizer.featurize(next_state)
+            old_q_value = featurizer.q_value(features, action)
+            featurizer.update(features, action, reward, next_features, done)
+            new_q_value = featurizer.q_value(features, action)
+            total_q_value_change += abs(new_q_value - old_q_value)
+            num_steps += 1
+            features = next_features
+            episode_Score += reward
+            if done:
+                break
+        print(f"Score for episode {episode}: {episode_Score}")
+        average_q_value_change = total_q_value_change / num_steps
+        print(f"Average Q-value change in episode {episode}: {average_q_value_change}")
+
+        # Update epsilon
+        featurizer.epsilon = max(featurizer.epsilon - epsilon_decay, min_epsilon)
+        print(f"epsilon: {featurizer.epsilon}")
+
     env.close()
 
-def print_episode_data(episode, total_reward):
-    print("--------------")
-    print(f"Episode: {episode}")
-    print(f"Score: {total_reward}")
-
-if __name__ == "__main__":
-    asyncio.run(run())
+# Run the main function
+asyncio.run(main())
