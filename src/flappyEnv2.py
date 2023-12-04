@@ -4,31 +4,24 @@ from .flappy import *
 import random as rnd
 
 import gymnasium as gym
-from gymnasium.spaces import Discrete, Dict, Tuple, Box
+from gymnasium.spaces import Discrete, Box
 
-SPACE_DIVISOR = 1
-
-class FlappyEnv(gym.Env):
-    metadata = {"render_modes": ["human"], "render_fps": 30}
+class FlappyEnv2(gym.Env):
+    metadata = {"render_modes": ["human"], "render_fps": 300}
 
     def __init__(self, rendermode=None, size=0):
         self.game = Flappy(self.metadata["render_fps"])
         self.height = int(self.game.config.window.viewport_height)
         self.width = 627 # int(self.game.config.window.viewport_width)
         
-        # obs space is composed of agent height and position of the gap in the next 2 pipes
-        self.observation_space = Dict(
-            {
-                "bird_y": Discrete(int(self.height / SPACE_DIVISOR)),
-                "bird_vel": Discrete(20),
-                "pipe1_y": Discrete(int(self.height / SPACE_DIVISOR)),
-                "pipe1_x": Discrete(int(self.width / SPACE_DIVISOR)),
-                "pipe2_y": Discrete(int(self.height / SPACE_DIVISOR)),
-                "pipe2_x": Discrete(int(self.width / SPACE_DIVISOR))
-                # "pipes_h": Box(0, self.height, shape=(2,), dtype=int),
-                # "pipes_w": Box(0, self.width, shape=(2,), dtype=int)
-            }
+        # obs space is composed of bird_y, bird_vel, pipe1_y, pipe1_x, pipe2_y, pipe2_x
+        self.observation_space = Box(
+            low=0,
+            high=np.array([self.height, 20, self.height, self.width, self.height, self.width]),
+            shape=(6,),
+            dtype=np.int32
         )
+        
         # 2 actions: 0 -> no action, 1 -> jump
         self.action_space = Discrete(2)
 
@@ -37,12 +30,12 @@ class FlappyEnv(gym.Env):
 
     @property
     def get_state_shape(self):        
-        return (int(404 / SPACE_DIVISOR)+1,
+        return (404+1,
                 20,
-                int(404 / SPACE_DIVISOR)+1,
-                int(627 / SPACE_DIVISOR)+1,
-                int(404 / SPACE_DIVISOR)+1,                
-                int(627 / SPACE_DIVISOR)+1                
+                404+1,
+                627+1,
+                404+1,                
+                627+1                
         )
     
     @property
@@ -50,25 +43,25 @@ class FlappyEnv(gym.Env):
         return 2
 
     def _get_obs(self):
-        bird_y = int(self.game.player.cy / SPACE_DIVISOR)
+        bird_y = min(int(self.game.player.cy), self.height)
         bird_vel = int(self.game.player.vel_y) + 9
         pipes = self.game.pipes.lower
         pipes_upper = self.game.pipes.upper
         pipe1_y = pipe1_x = pipe2_y = pipe2_x = pipe_h = pipe_w = 0        
 
-        pipe1_y = int(pipes[0].y / SPACE_DIVISOR)
-        pipe1_x = int(pipes[0].x / SPACE_DIVISOR)
+        pipe1_y = int(pipes[0].y)
+        pipe1_x = int(pipes[0].x)
         # print(f"pipe1_y: {pipe1_y} || pipe1_x: {pipe1_x}")
 
         if len(pipes) >= 2:
-            pipe2_y = int(pipes[1].y / SPACE_DIVISOR)
-            pipe2_x = int(pipes[1].x / SPACE_DIVISOR)
+            pipe2_y = int(pipes[1].y)
+            pipe2_x = int(pipes[1].x)
             # print(f"pipe2_y: {pipe2_y} || pipe2_x: {pipe2_x}")
 
         pipe_h = int(pipes[0].y - (pipes_upper[0].y + pipes_upper[0].h))
         pipe_w = int(pipes[0].w)
 
-        return {"bird_y": bird_y, "bird_vel": bird_vel, "pipe1_y": pipe1_y, "pipe1_x": pipe1_x, "pipe2_y": pipe2_y, "pipe2_x": pipe2_x} # , "pipes_h": pipes_h, "pipes_w": pipes_w}
+        return np.array([bird_y, bird_vel, pipe1_y, pipe1_x, pipe2_y, pipe2_x]) # , pipes_h, pipes_w])
     
     def _get_info(self):
         return []
@@ -87,9 +80,9 @@ class FlappyEnv(gym.Env):
 
         return obs, info
 
-    async def step(self, action):
+    def step(self, action):
 
-        terminated = await self.game.tick(action == 1)
+        terminated = self.game.tick(action == 1)
         obs = self._get_obs()
         info = self._get_info()
         reward = 0 if not terminated else -1000
