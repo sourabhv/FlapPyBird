@@ -1,8 +1,8 @@
-import asyncio
+import numpy as np
 from src.flappyEnv import FlappyEnv
 from src.flappyEnv2 import FlappyEnv2
 from src.models.QLearning import qlearning
-from src.models import DQN
+from src.models import DQN, ActorCritic
 from datetime import datetime
 
 def run():
@@ -42,5 +42,13 @@ def run_dqn():
 
     model.train(500)
 
+def run_ac():
+    env = FlappyEnv2()
+    featurizer = ActorCritic.RbfFeaturizer(env, 100)
+
+    Theta, w, eval_returns = ActorCritic.ActorCritic(env, featurizer, ActorCritic.evaluate, max_episodes=1000)
+
+    print(eval_returns)
+
 if __name__ == "__main__":
-    run_dqn()
+    run_ac()

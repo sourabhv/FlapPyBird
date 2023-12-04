@@ -67,11 +67,11 @@ def ActorCritic(env,
             s = new_s
             actor_discount *= gamma
 
-        # if i % evaluate_every == 0:
-        #     eval_return = eval_func(env, featurizer, Theta, softmaxPolicy)
-        #     eval_returns.append(eval_return)
+        if i % evaluate_every == 0:
+            eval_return = eval_func(env, featurizer, Theta, softmaxPolicy)
+            eval_returns.append(eval_return)
 
-    return Theta, w#, eval_returns
+    return Theta, w, eval_returns
 
 class RbfFeaturizer():
     '''
@@ -93,4 +93,21 @@ class RbfFeaturizer():
         z = z / self._std
         dist = cdist(z, self._centers)
         return np.exp(- (dist) ** 2).flatten()
+
+def evaluate(env, featurizer, W, policy_func, n_runs=10):
+    all_returns = np.zeros([n_runs])
+    for i in range(n_runs):
+        observation, info = env.reset()
+        return_to_go = 0
+        while True:
+            observation = featurizer.featurize(observation)
+            action = policy_func(observation, W)
+
+            observation, reward, terminated, truncated, info = env.step(action)
+            return_to_go += reward
+            if terminated or truncated:
+                break
+        all_returns[i] = return_to_go
+
+    return np.mean(all_returns)
 
