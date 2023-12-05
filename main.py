@@ -40,7 +40,7 @@ def run_dqn():
     model = DQN.DQN_Model(env)
     # print(model.device)
 
-    model.train(500)
+    model.train(500, 9)
 
 if __name__ == "__main__":
     run_dqn()

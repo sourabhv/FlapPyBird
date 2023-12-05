@@ -161,10 +161,10 @@ class DQN_Model:
         torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
         self.optimizer.step()
 
-    def train(self, num_episodes):
+    def train(self, num_episodes, seed=5):
         for i in range(num_episodes):
             # Initialize the environment and get it's state
-            state, info = self.env.reset()
+            state, info = self.env.reset(seed=seed)
             state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
             for t in count():
                 action = self.select_action(state)
@@ -198,6 +198,10 @@ class DQN_Model:
                     self.episode_durations.append(t + 1)
                     self.plot_durations()
                     break
+
+            if i > 0 and i % 250 == 0:
+                torch.save(self.target_net.state_dict(), f'output/DQNweights_{i}.pt')
+                print(f'Saved weigths after {i} episodes')
         
         print('Complete')
         self.plot_durations(show_result=True)
