@@ -1,10 +1,18 @@
 import asyncio
 from src.flappyEnv import FlappyEnv
+from models.FA.DynaQ import dynaq
+from models.A2Helpers import RbfFeaturizer
+
 
 async def run():
     env = FlappyEnv()
 
-    for episode in range(10):
+    ftr = RbfFeaturizer(env, 100)
+    W = await dynaq.DynaQFA(env, ftr, epsilon=0.1, max_episode=10000)
+    env.close()
+
+    return
+    for episode in range(0):
         await env.reset()
         total_reward = 0
         while True:

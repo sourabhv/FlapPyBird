@@ -4,10 +4,55 @@
 #       See the A2 instructions for more information.
 import numpy as np
 from scipy.linalg import block_diag
+from scipy.spatial.distance import cdist
 import matplotlib
 from matplotlib import pyplot as plt
 import gymnasium as gym
 from gymnasium.error import DependencyNotInstalled
+
+class RbfFeaturizer():
+    '''
+        This class converts the raw state/obvervation features into
+        RBF features. It does a z-score normalization and computes the
+        Gaussian kernel values from randomly selected centers.
+    '''
+
+    def __init__(self, env, n_features=100):
+        centers = np.array([env.observation_space.sample()
+                            for _ in range(n_features)])
+        self._mean = np.mean(centers, axis=0, keepdims=True)
+        self._std = np.std(centers, axis=0, keepdims=True)
+        self._centers = (centers - self._mean) / self._std
+        self.n_features = n_features
+
+    def featurize(self, state):
+        z = state[None, :] - self._mean
+        z = z / self._std
+        dist = cdist(z, self._centers)
+        return np.exp(- (dist) ** 2).flatten()
+
+
+def evaluate(env, featurizer, W, policy_func, n_runs=10):
+    '''
+        Evaluate the policy given the parameters W and policy function.
+        Run the environment several times and collect the return.
+    '''
+    all_returns = np.zeros([n_runs])
+    for i in range(n_runs):
+        observation, info = env.reset()
+        return_to_go = 0
+        while True:
+            # Agent
+            observation = featurizer.featurize(observation)
+            action = policy_func(observation, W)
+
+            observation, reward, terminated, truncated, info = env.step(action)
+            return_to_go += reward
+            if terminated or truncated:
+                break
+        all_returns[i] = return_to_go
+
+    return np.mean(all_returns)
 
 
 class GridWorld(gym.Env):
