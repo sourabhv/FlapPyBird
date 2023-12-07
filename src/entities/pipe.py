@@ -4,8 +4,8 @@ from typing import List
 from ..utils import GameConfig
 from .entity import Entity
 
-PIPE_GAP_MIN = 100
-PIPE_GAP_MAX = 100
+PIPE_GAP_MIN = 241
+PIPE_GAP_MAX = 241
 
 class Pipe(Entity):
     def __init__(self, *args, **kwargs) -> None:
@@ -67,14 +67,14 @@ class Pipes(Entity):
 
     def spawn_initial_pipes(self):
         upper_1, lower_1 = self.make_random_pipes()
-        upper_1.x = self.config.window.width + upper_1.w * 3
-        lower_1.x = self.config.window.width + upper_1.w * 3
+        upper_1.x = self.config.window.width + upper_1.w * 3 #Originally 3
+        lower_1.x = self.config.window.width + upper_1.w * 3 #Originally 3
         self.upper.append(upper_1)
         self.lower.append(lower_1)
 
         upper_2, lower_2 = self.make_random_pipes()
-        upper_2.x = upper_1.x + upper_1.w * 3.5
-        lower_2.x = upper_1.x + upper_1.w * 3.5
+        upper_2.x = upper_1.x + upper_1.w * 3.5 #Originally 3.5
+        lower_2.x = upper_1.x + upper_1.w * 3.5 #Originally 3.5
         self.upper.append(upper_2)
         self.lower.append(lower_2)
 
@@ -87,13 +87,15 @@ class Pipes(Entity):
         gap_y += int(base_y * 0.2)
         pipe_height = self.config.images.pipe[0].get_height()
         pipe_x = self.config.window.width
+        
+        
 
         upper_pipe = Pipe(
             self.config,
             self.config.images.pipe[0],
             pipe_x,
             gap_y - pipe_height,
-            self.config.images.pipe[1].get_width() * 1,
+            self.config.images.pipe[1].get_width() * 1, #Originally 1
             self.config.images.pipe[1].get_height()
         )
 
@@ -102,7 +104,7 @@ class Pipes(Entity):
             self.config.images.pipe[1],
             pipe_x,
             gap_y +pipe_gap,
-            self.config.images.pipe[1].get_width() * 1,
+            self.config.images.pipe[1].get_width() * 1, #Originally 1
             self.config.images.pipe[1].get_height()
         )
 

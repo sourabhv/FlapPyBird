@@ -65,7 +65,7 @@ class Flappy:
             await asyncio.sleep(0)
             self.config.tick()
 
-    async def tick(self, flap_this_frame):
+    def tick(self, flap_this_frame):
 
         # player input
         for event in pygame.event.get():
@@ -94,7 +94,7 @@ class Flappy:
         self.player.tick()
 
         pygame.display.update()
-        await asyncio.sleep(0)
+        #await asyncio.sleep(0)
         self.config.tick()
         return False
     
