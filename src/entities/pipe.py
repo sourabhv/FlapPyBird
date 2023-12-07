@@ -4,8 +4,8 @@ from typing import List
 from ..utils import GameConfig
 from .entity import Entity
 
-PIPE_GAP_MIN = 241
-PIPE_GAP_MAX = 241
+PIPE_GAP_MIN = 100
+PIPE_GAP_MAX = 100
 
 class Pipe(Entity):
     def __init__(self, *args, **kwargs) -> None:
