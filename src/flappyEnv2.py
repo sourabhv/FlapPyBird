@@ -85,7 +85,7 @@ class FlappyEnv2(gym.Env):
         terminated = self.game.tick(action == 1)
         obs = self._get_obs()
         info = self._get_info()
-        reward = 0 if not terminated else -1000
+        reward = 1 if not terminated else -100
 
         # self.game._draw_observation_points(obs)
         return obs, reward, terminated, False, info
