@@ -10,6 +10,7 @@ class FlappyEnv2(gym.Env):
     metadata = {"render_modes": ["human"], "render_fps": 300}
 
     def __init__(self, rendermode=None, size=0):
+
         # action_interval=5
         # self.action_interval = action_interval  # Number of frames to wait before deciding on a new action
         # self.frames_since_last_action = 0
@@ -80,9 +81,7 @@ class FlappyEnv2(gym.Env):
         # We need the following line to seed self.np_random
         # super().reset(seed=seed)
         # randomize starting height (20-70% of screen height from top)
-    
-        
-        start_pos = (51 / 100.0) 
+        start_pos = (self.np_random.choice(51) + 20) / 100.0 
         rnd.seed(seed)
         self.game.reset(start_pos)
         self.pipe_count = 0
@@ -93,13 +92,13 @@ class FlappyEnv2(gym.Env):
         return obs, info
 
     def step(self, action):
-        
-            
+
         # self.frames_since_last_action += 1
 
         terminated = self.game.tick(action == 1)
         obs = self._get_obs()
         info = self._get_info()
+        
         reward = 1
         if self.game.player.collided_pipe(self.game.pipes):
             reward -= 10 
@@ -112,8 +111,9 @@ class FlappyEnv2(gym.Env):
                 reward += 50  # Reward for passing a pipe
                 self.pipe_count += 1
                 print(f"Passed pipe: {self.pipe_count}")
-        
-        return obs, reward, terminated, info
+
+        # self.game._draw_observation_points(obs)
+        return obs, reward, terminated, False, info
 
     def close(self):
         pygame.display.quit()

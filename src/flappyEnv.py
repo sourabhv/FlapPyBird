@@ -76,7 +76,7 @@ class FlappyEnv(gym.Env):
         return []
         
 
-    async def reset(self, seed=5, options=None):
+    def reset(self, seed=5, options=None):
         # We need the following line to seed self.np_random
         # super().reset(seed=seed)
         # randomize starting height (20-70% of screen height from top)
@@ -93,6 +93,7 @@ class FlappyEnv(gym.Env):
         terminated = await self.game.tick(action == 1)
         obs = self._get_obs()
         info = self._get_info()
+
         reward = 1
         if self.game.player.collided_pipe(self.game.pipes):
             reward -= 100  # Reduced penalty for hitting a pipe
@@ -103,7 +104,6 @@ class FlappyEnv(gym.Env):
                 reward += 100  # Reward for passing a pipe
                 print(f"Passed pipe: {i}")
         return obs, reward, terminated, info
-
 
     def close(self):
         pygame.display.quit()
