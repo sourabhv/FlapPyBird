@@ -7,7 +7,7 @@ from queue import PriorityQueue
 # https://arxiv.org/ftp/arxiv/papers/1206/1206.3285.pdf
 
 
-async def DynaQFA(env, 
+def DynaQFA(env, 
             featurizer, 
             gamma=0.99,
             step_size=0.005,
