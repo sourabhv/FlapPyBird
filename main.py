@@ -11,11 +11,11 @@ from src.models.FA.DynaQ import dynaq
 from src.models.featurizer.tile_coding_6d import TileCoder
 
 
-async def run_dynaq():
+def run_dynaq():
     env = FlappyEnv2()
 
     ftr = RbfFeaturizer(env, 100)
-    W = await dynaq.DynaQFA(env, ftr, epsilon=0.1, max_episode=100000)
+    W = dynaq.DynaQFA(env, ftr, epsilon=0.1, max_episode=100000)
     print(W)
     env.close()
 
@@ -55,17 +55,17 @@ def linear_regression():
         num_steps = 0
         total_Score = 0
 
-        done = False
-        while not done:
+        terminated = False
+        while not terminated:
             action = featurizer.choose_action(features)
-            next_state, reward, done, info = env.step(action)
+            next_state, reward, terminated, _, info = env.step(action)
             #print(next_state)
             next_features = featurizer.featurize(next_state)
-            featurizer.update(features, action, reward, next_features, done)
+            featurizer.update(features, action, reward, next_features, terminated)
             num_steps += 1
             features = next_features
             episode_Score += reward
-            if done:
+            if terminated:
                 break
         rewards.append(episode_Score)
         
