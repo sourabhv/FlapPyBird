@@ -15,7 +15,7 @@ class Score(Entity):
 
     def add(self) -> None:
         self.score += 1
-        self.config.sounds.point.play()
+        #self.config.sounds.point.play()
 
     @property
     def rect(self) -> pygame.Rect:

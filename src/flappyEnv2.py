@@ -10,9 +10,17 @@ class FlappyEnv2(gym.Env):
     metadata = {"render_modes": ["human"], "render_fps": 300}
 
     def __init__(self, rendermode=None, size=0):
+
+        # action_interval=5
+        # self.action_interval = action_interval  # Number of frames to wait before deciding on a new action
+        # self.frames_since_last_action = 0
+        
         self.game = Flappy(self.metadata["render_fps"])
         self.height = int(self.game.config.window.viewport_height)
+        print(self.height)
         self.width = 627 # int(self.game.config.window.viewport_width)
+        self.pipe_count = 0
+        #self.pipe_speed = 5 * self.metadata["render_fps"]
         
         # obs space is composed of bird_y, bird_vel, pipe1_y, pipe1_x, pipe2_y, pipe2_x
         self.observation_space = Box(
@@ -60,6 +68,8 @@ class FlappyEnv2(gym.Env):
 
         pipe_h = int(pipes[0].y - (pipes_upper[0].y + pipes_upper[0].h))
         pipe_w = int(pipes[0].w)
+        
+        #pipe_speed = 5 * self.metadata["render_fps"]
 
         return np.array([bird_y, bird_vel, pipe1_y, pipe1_x, pipe2_y, pipe2_x]) # , pipes_h, pipes_w])
     
@@ -74,6 +84,7 @@ class FlappyEnv2(gym.Env):
         start_pos = (self.np_random.choice(51) + 20) / 100.0 
         rnd.seed(seed)
         self.game.reset(start_pos)
+        self.pipe_count = 0
 
         obs = self._get_obs()
         info = self._get_info()
@@ -82,10 +93,24 @@ class FlappyEnv2(gym.Env):
 
     def step(self, action):
 
+        # self.frames_since_last_action += 1
+
         terminated = self.game.tick(action == 1)
         obs = self._get_obs()
         info = self._get_info()
-        reward = 1 if not terminated else -100
+        
+        reward = 1
+        if self.game.player.collided_pipe(self.game.pipes):
+            reward -= 10 
+        if self.game.player.collided_floor(self.game.floor):
+            reward -= 10
+        if self.game.player.cy <= 0:
+             reward -= 5
+        for i, pipe in enumerate(self.game.pipes.upper):
+            if self.game.player.crossed(pipe):
+                reward += 50  # Reward for passing a pipe
+                self.pipe_count += 1
+                print(f"Passed pipe: {self.pipe_count}")
 
         # self.game._draw_observation_points(obs)
         return obs, reward, terminated, False, info

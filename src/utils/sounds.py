@@ -20,4 +20,4 @@ class Sounds:
         self.hit = pygame.mixer.Sound(f"assets/audio/hit.{ext}")
         self.point = pygame.mixer.Sound(f"assets/audio/point.{ext}")
         self.swoosh = pygame.mixer.Sound(f"assets/audio/swoosh.{ext}")
-        self.wing = pygame.mixer.Sound(f"assets/audio/wing.{ext}")
+        #self.wing = pygame.mixer.Sound(f"assets/audio/wing.{ext}")
