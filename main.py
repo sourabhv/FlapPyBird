@@ -1,14 +1,16 @@
 import asyncio
-from src.flappyEnv import FlappyEnv
+from src.flappyEnv2 import FlappyEnv2
 from models.FA.DynaQ import dynaq
 from models.featurizer.tile_coding_6d import TileCoder
+from src.models.A2Helpers import RbfFeaturizer
 
 
 async def run():
-    env = FlappyEnv()
+    env = FlappyEnv2()
 
-    ftr = TileCoder(env, 100)
-    W = await dynaq.DynaQFA(env, ftr, epsilon=0.1, max_episode=10000)
+    ftr = RbfFeaturizer(env, 100)
+    W = await dynaq.DynaQFA(env, ftr, epsilon=0.1, max_episode=100000)
+    print(W)
     env.close()
 
     return
