@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.spatial.distance import cdist
+import matplotlib.pyplot as plt
 
 def softmaxProb(x, Theta):
     preferences = np.transpose(Theta) @ x
@@ -34,6 +35,32 @@ def logSoftmaxPolicyGradient(x, a, Theta):
 
     return grad
 
+def log_performance(i, total_reward, log_dict):
+    log_dict['episode'].append(i)
+    log_dict['total_reward'].append(total_reward)
+
+    if i%100==0:
+        avg_reward = np.mean(log_dict['total_reward'][-100:])
+        print(f"Episode {i}, Average reward over 100ep: {avg_reward}")
+
+def update_plot(log_dict):
+    plt.clf()  # Clear the current figure
+
+    # Plot the reward for each episode
+    plt.plot(log_dict['episode'], log_dict['total_reward'], label='Reward per Episode', color='blue')
+
+    # Calculate and plot the average reward every 100 episodes
+    avg_rewards = [np.mean(log_dict['total_reward'][max(0, i-100):i+1]) for i in range(len(log_dict['total_reward']))]
+    plt.plot(log_dict['episode'], avg_rewards, label='Average Reward per 100 Episodes', color='red', linewidth=2)
+
+    plt.xlabel('Episode')
+    plt.ylabel('Reward')
+    plt.title('Reward per Episode and Average Reward per 100 Episodes')
+    plt.legend()
+    plt.pause(0.001)  # Pause briefly to update the plot
+
+    
+
 def ActorCritic(env,
                 featurizer,
                 eval_func,
@@ -42,18 +69,22 @@ def ActorCritic(env,
                 critic_step_size=0.005,
                 max_episodes=400,
                 evaluate_every=20):
+    plt.ion()
     Theta = np.random.rand(featurizer.n_features, env.action_space.n)
     w = np.random.rand(featurizer.n_features)
     eval_returns = []
+    log_dict = {'episode':[], 'total_reward':[]}
     for i in range(1, max_episodes+1):
         s, info = env.reset()
         s = featurizer.featurize(s)
         terminated = truncated = False
         actor_discount = 1
+        total_reward = 0
         while not (terminated or truncated):
 
             action = softmaxPolicy(s, Theta)
             obs, reward, terminated, truncated, info = env.step(action)
+            total_reward += reward
 
             new_s = featurizer.featurize(obs)
 
@@ -70,7 +101,75 @@ def ActorCritic(env,
         if i % evaluate_every == 0:
             eval_return = eval_func(env, featurizer, Theta, softmaxPolicy)
             eval_returns.append(eval_return)
+        log_performance(i,total_reward, log_dict)
+        update_plot(log_dict)
+    plt.ioff()
+    update_plot(log_dict)
+    plt.savefig('ActorCritic.png')
+    plt.show()
+    return Theta, w, eval_returns
 
+def AdvantageActorCritic(env,
+                featurizer,
+                eval_func,
+                gamma=0.99,
+                actor_step_size=0.005,
+                critic_step_size=0.005,
+                max_episodes=3000,
+                evaluate_every=20):
+    plt.ion()
+    Theta = np.random.rand(featurizer.n_features, env.action_space.n)
+    w = np.random.rand(featurizer.n_features)
+    eval_returns = []
+    log_dict = {'episode':[], 'total_reward':[]}
+    for i in range(1, max_episodes+1):
+        s, info = env.reset()
+        s = featurizer.featurize(s)
+        terminated = truncated = False
+        episode_rewards = []
+        states = []
+        actions = []
+        # actor_discount = 1.0
+        while not (terminated or truncated):
+
+            action = softmaxPolicy(s, Theta)
+            obs, reward, terminated, truncated, info = env.step(action)
+            states.append(s)
+            actions.append(action)
+            episode_rewards.append(reward)
+            s = featurizer.featurize(obs)
+
+        G_t = 0
+        returns = []
+        for r in episode_rewards[::-1]:
+            G_t = r + gamma * G_t
+            returns.append(G_t)
+
+        # # Compute advantages with normalized returns; not used since problem is future learning
+        # advantages = [G - (s @ w) for G, s in zip(returns, states)]
+        # advantages -= np.mean(advantages)  # Normalize
+        # advantages /= (np.std(advantages) + 1e-10)  # Avoid division by zero
+
+        #Actor/critic update with advantage
+        for s, a, G in zip(states, actions, returns[::-1]):
+            v_s = s @ w #current state value
+
+            w += critic_step_size * (G - v_s) * s #update critic weights
+            Theta += actor_step_size * (G - v_s) * logSoftmaxPolicyGradient(s, a, Theta) #update actor weights
+        
+        total_reward = sum(episode_rewards)
+        log_dict['episode'].append(i)
+        log_dict['total_reward'].append(total_reward)
+
+        if i % evaluate_every == 0:
+            eval_return = eval_func(env, featurizer, Theta, softmaxPolicy)
+            eval_returns.append(eval_return)
+        log_performance(i,total_reward, log_dict)
+        update_plot(log_dict)
+    plt.ioff()
+    update_plot(log_dict)
+    plt.savefig('AdvantageActorCritic.png')
+    plt.show()
     return Theta, w, eval_returns
 
 class RbfFeaturizer():

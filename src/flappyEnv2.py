@@ -7,7 +7,7 @@ import gymnasium as gym
 from gymnasium.spaces import Discrete, Box
 
 class FlappyEnv2(gym.Env):
-    metadata = {"render_modes": ["human"], "render_fps": 300}
+    metadata = {"render_modes": ["human"], "render_fps": 30}
 
     def __init__(self, rendermode=None, size=0):
 
@@ -77,9 +77,9 @@ class FlappyEnv2(gym.Env):
         return []
         
 
-    def reset(self, seed=5, options=None):
+    def reset(self, seed=None, options=None):
         # We need the following line to seed self.np_random
-        # super().reset(seed=seed)
+        super().reset(seed=seed)
         # randomize starting height (20-70% of screen height from top)
         start_pos = (self.np_random.choice(51) + 20) / 100.0 
         rnd.seed(seed)

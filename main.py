@@ -132,9 +132,16 @@ def run_ac():
     env = FlappyEnv2()
     featurizer = ActorCritic.RbfFeaturizer(env, 100)
 
-    Theta, w, eval_returns = ActorCritic.ActorCritic(env, featurizer, ActorCritic.evaluate, max_episodes=1000)
+    Theta, w, eval_returns = ActorCritic.ActorCritic(env, featurizer, ActorCritic.evaluate, max_episodes=10000)
 
-    print(eval_returns)
+def run_AAC():
+    env = FlappyEnv2()
+    featurizer = ActorCritic.RbfFeaturizer(env, 100)
+
+    Theta, w, eval_returns = ActorCritic.AdvantageActorCritic(env, featurizer, ActorCritic.evaluate, max_episodes=10000)
 
 if __name__ == "__main__":
-    run_ac()
+    # run_ac()
+    # run_dqn()
+    # linear_regression()
+    run_AAC()
